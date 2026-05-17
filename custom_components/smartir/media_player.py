@@ -42,7 +42,7 @@ from .const import (
     DOMAIN,
 )
 from .controller import get_controller
-from .intent import SmartIRIntentMixin
+from .intent_sync import SmartIRIntentMixin
 
 _LOGGER = logging.getLogger(__name__)
 
