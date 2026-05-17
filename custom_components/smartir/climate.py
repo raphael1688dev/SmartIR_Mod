@@ -109,7 +109,7 @@ async def async_setup_entry(
         )
         try:
             codes_source = (
-                f"https://raw.githubusercontent.com/smartHomeHub/SmartIR/master/"
+                f"https://raw.githubusercontent.com/raphael1688dev/SmartIR_Mod/main/"
                 f"codes/climate/{device_code}.json"
             )
             session = async_get_clientsession(hass)

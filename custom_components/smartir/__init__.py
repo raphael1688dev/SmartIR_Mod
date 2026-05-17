@@ -23,8 +23,9 @@ from .const import CONF_PLATFORM, DOMAIN, PLATFORMS
 _LOGGER = logging.getLogger(__name__)
 
 VERSION = '1.18.1'
-MANIFEST_URL = "https://raw.githubusercontent.com/smartHomeHub/SmartIR/{}/custom_components/smartir/manifest.json"
-REMOTE_BASE_URL = "https://raw.githubusercontent.com/smartHomeHub/SmartIR/{}/custom_components/smartir/"
+MANIFEST_URL = "https://raw.githubusercontent.com/raphael1688dev/SmartIR_Mod/{}/custom_components/smartir/manifest.json"
+REMOTE_BASE_URL = "https://raw.githubusercontent.com/raphael1688dev/SmartIR_Mod/{}/custom_components/smartir/"
+DEFAULT_BRANCH = 'main'
 COMPONENT_ABS_DIR = os.path.dirname(os.path.abspath(__file__))
 
 CONF_CHECK_UPDATES = 'check_updates'
@@ -33,7 +34,7 @@ CONF_UPDATE_BRANCH = 'update_branch'
 CONFIG_SCHEMA = vol.Schema({
     DOMAIN: vol.Schema({
         vol.Optional(CONF_CHECK_UPDATES, default=True): cv.boolean,
-        vol.Optional(CONF_UPDATE_BRANCH, default='master'): vol.In(['master', 'rc'])
+        vol.Optional(CONF_UPDATE_BRANCH, default=DEFAULT_BRANCH): vol.In(['main', 'master', 'rc']),
     })
 }, extra=vol.ALLOW_EXTRA)
 
