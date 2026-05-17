@@ -26,3 +26,8 @@ CONF_DEVICE_CLASS = "device_class"
 
 DEFAULT_DELAY = 0.5
 DEFAULT_MEDIA_PLAYER_DEVICE_CLASS = "tv"
+
+CONF_ENABLE_INTENT_SYNC = "enable_intent_sync"
+CONF_INTENT_TOPIC_BASE = "intent_topic_base"
+CONF_INTENT_SOURCE_ID = "intent_source_id"
+DEFAULT_INTENT_TOPIC_BASE = "smartir/intent"

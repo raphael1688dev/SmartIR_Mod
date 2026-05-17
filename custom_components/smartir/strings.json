@@ -68,7 +68,13 @@
           "humidity_sensor": "Humidity sensor",
           "power_sensor": "Power sensor",
           "power_sensor_restore_state": "Restore last on operation when power sensor turns on",
-          "device_class": "Device class"
+          "device_class": "Device class",
+          "enable_intent_sync": "Sync state across multiple HA instances via MQTT (intent topic)",
+          "intent_topic_base": "Intent topic base (defaults to smartir/intent)"
+        },
+        "data_description": {
+          "enable_intent_sync": "When enabled, this entity publishes its state to a retained MQTT topic after each command, and updates from messages from other HA instances. Requires the MQTT integration. Each entry gets its own UUID used as the publish source to prevent loops.",
+          "intent_topic_base": "Topic prefix; the full topic becomes <base>/<unique_id>."
         }
       }
     }

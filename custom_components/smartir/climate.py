@@ -28,16 +28,21 @@ from .const import (
     CONF_CONTROLLER_DATA,
     CONF_DELAY,
     CONF_DEVICE_CODE,
+    CONF_ENABLE_INTENT_SYNC,
     CONF_HUMIDITY_SENSOR,
+    CONF_INTENT_SOURCE_ID,
+    CONF_INTENT_TOPIC_BASE,
     CONF_PLATFORM,
     CONF_POWER_SENSOR,
     CONF_POWER_SENSOR_RESTORE_STATE,
     CONF_TEMPERATURE_SENSOR,
     CONF_UNIQUE_ID,
     DEFAULT_DELAY,
+    DEFAULT_INTENT_TOPIC_BASE,
     DOMAIN,
 )
 from .controller import get_controller
+from .intent import SmartIRIntentMixin
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -132,7 +137,7 @@ async def async_setup_entry(
     async_add_entities([SmartIRClimate(hass, entry, merged, device_data)])
 
 
-class SmartIRClimate(ClimateEntity, RestoreEntity):
+class SmartIRClimate(SmartIRIntentMixin, ClimateEntity, RestoreEntity):
     def __init__(self, hass, entry: ConfigEntry, config: dict[str, Any], device_data):
         _LOGGER.debug(
             "SmartIRClimate init started for device %s. Supported models: %s",
@@ -194,6 +199,13 @@ class SmartIRClimate(ClimateEntity, RestoreEntity):
             self._delay,
         )
 
+        self._intent_setup(
+            enabled=bool(config.get(CONF_ENABLE_INTENT_SYNC, False)),
+            topic_base=config.get(CONF_INTENT_TOPIC_BASE, DEFAULT_INTENT_TOPIC_BASE),
+            unique_id=self._attr_unique_id,
+            source_id=entry.data.get(CONF_INTENT_SOURCE_ID),
+        )
+
     async def async_added_to_hass(self):
         """Run when entity about to be added."""
         await super().async_added_to_hass()
@@ -240,6 +252,12 @@ class SmartIRClimate(ClimateEntity, RestoreEntity):
             async_track_state_change_event(
                 self.hass, self._power_sensor, self._async_power_sensor_changed
             )
+
+        await self._intent_subscribe()
+
+    async def async_will_remove_from_hass(self) -> None:
+        self._intent_unsubscribe()
+        await super().async_will_remove_from_hass()
 
     @property
     def name(self): return self._name
@@ -371,6 +389,7 @@ class SmartIRClimate(ClimateEntity, RestoreEntity):
 
                 if operation_mode == HVACMode.OFF:
                     await self._controller.send(self._commands['off'])
+                    await self._intent_publish(self._build_intent_payload())
                     return
 
                 if 'on' in self._commands:
@@ -383,9 +402,42 @@ class SmartIRClimate(ClimateEntity, RestoreEntity):
                     cmd = self._commands[operation_mode][fan_mode][target_temperature]
 
                 await self._controller.send(cmd)
+                await self._intent_publish(self._build_intent_payload())
 
             except Exception:
                 _LOGGER.exception("Failed to send command to the controller")
+
+    def _build_intent_payload(self) -> dict[str, Any]:
+        return {
+            "hvac_mode": str(self._hvac_mode) if self._hvac_mode is not None else None,
+            "fan_mode": self._current_fan_mode,
+            "swing_mode": self._current_swing_mode,
+            "temperature": self._target_temperature,
+        }
+
+    def _apply_intent(self, payload: dict[str, Any]) -> None:
+        """Apply state from another HA's intent. Validate per CLAUDE.md rules."""
+        hvac_mode = payload.get("hvac_mode")
+        if hvac_mode in self._operation_modes:
+            self._hvac_mode = hvac_mode
+
+        fan_mode = payload.get("fan_mode")
+        if fan_mode in self._fan_modes:
+            self._current_fan_mode = fan_mode
+
+        swing_mode = payload.get("swing_mode")
+        if self._swing_modes and swing_mode in self._swing_modes:
+            self._current_swing_mode = swing_mode
+
+        temperature = payload.get("temperature")
+        if (
+            isinstance(temperature, (int, float))
+            and self._min_temperature <= temperature <= self._max_temperature
+        ):
+            self._target_temperature = temperature
+
+        if hvac_mode in self._operation_modes and hvac_mode != HVACMode.OFF:
+            self._last_on_operation = hvac_mode
 
     async def _async_temp_sensor_changed(self, event: Event[EventStateChangedData]) -> None:
         """Handle temperature sensor changes."""

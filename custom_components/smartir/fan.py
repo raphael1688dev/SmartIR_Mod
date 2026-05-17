@@ -31,13 +31,18 @@ from .const import (
     CONF_CONTROLLER_DATA,
     CONF_DELAY,
     CONF_DEVICE_CODE,
+    CONF_ENABLE_INTENT_SYNC,
+    CONF_INTENT_SOURCE_ID,
+    CONF_INTENT_TOPIC_BASE,
     CONF_PLATFORM,
     CONF_POWER_SENSOR,
     CONF_UNIQUE_ID,
     DEFAULT_DELAY,
+    DEFAULT_INTENT_TOPIC_BASE,
     DOMAIN,
 )
 from .controller import get_controller
+from .intent import SmartIRIntentMixin
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -124,7 +129,7 @@ async def async_setup_entry(
     async_add_entities([SmartIRFan(hass, entry, merged, device_data)])
 
 
-class SmartIRFan(FanEntity, RestoreEntity):
+class SmartIRFan(SmartIRIntentMixin, FanEntity, RestoreEntity):
     def __init__(self, hass, entry: ConfigEntry, config: dict[str, Any], device_data):
         self.hass = hass
         self._entry = entry
@@ -172,6 +177,13 @@ class SmartIRFan(FanEntity, RestoreEntity):
             self._delay,
         )
 
+        self._intent_setup(
+            enabled=bool(config.get(CONF_ENABLE_INTENT_SYNC, False)),
+            topic_base=config.get(CONF_INTENT_TOPIC_BASE, DEFAULT_INTENT_TOPIC_BASE),
+            unique_id=self._attr_unique_id,
+            source_id=entry.data.get(CONF_INTENT_SOURCE_ID),
+        )
+
     async def async_added_to_hass(self):
         """Run when entity about to be added."""
         await super().async_added_to_hass()
@@ -196,6 +208,12 @@ class SmartIRFan(FanEntity, RestoreEntity):
             async_track_state_change_event(
                 self.hass, self._power_sensor, self._async_power_sensor_changed
             )
+
+        await self._intent_subscribe()
+
+    async def async_will_remove_from_hass(self) -> None:
+        self._intent_unsubscribe()
+        await super().async_will_remove_from_hass()
 
     @property
     def name(self): return self._name
@@ -299,8 +317,36 @@ class SmartIRFan(FanEntity, RestoreEntity):
 
             try:
                 await self._controller.send(command)
+                await self._intent_publish(self._build_intent_payload())
             except Exception:
                 _LOGGER.exception("Failed to send command to the Fan controller")
+
+    def _build_intent_payload(self) -> dict[str, Any]:
+        return {
+            "speed": self._speed,
+            "direction": self._direction,
+            "oscillating": self._oscillating,
+            "last_on_speed": self._last_on_speed,
+        }
+
+    def _apply_intent(self, payload: dict[str, Any]) -> None:
+        speed = payload.get("speed")
+        if speed == SPEED_OFF or speed in self._speed_list:
+            self._speed = speed
+
+        if self._support_flags & FanEntityFeature.DIRECTION:
+            direction = payload.get("direction")
+            if direction in (DIRECTION_FORWARD, DIRECTION_REVERSE):
+                self._direction = direction
+
+        if self._support_flags & FanEntityFeature.OSCILLATE:
+            oscillating = payload.get("oscillating")
+            if isinstance(oscillating, bool):
+                self._oscillating = oscillating
+
+        last_on_speed = payload.get("last_on_speed")
+        if last_on_speed in self._speed_list:
+            self._last_on_speed = last_on_speed
 
     async def _async_power_sensor_changed(self, event: Event[EventStateChangedData]) -> None:
         """Handle power sensor changes."""

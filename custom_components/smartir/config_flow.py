@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import logging
 from typing import Any
+import uuid
 
 import voluptuous as vol
 
@@ -21,7 +22,10 @@ from .const import (
     CONF_DELAY,
     CONF_DEVICE_CLASS,
     CONF_DEVICE_CODE,
+    CONF_ENABLE_INTENT_SYNC,
     CONF_HUMIDITY_SENSOR,
+    CONF_INTENT_SOURCE_ID,
+    CONF_INTENT_TOPIC_BASE,
     CONF_PLATFORM,
     CONF_POWER_SENSOR,
     CONF_POWER_SENSOR_RESTORE_STATE,
@@ -29,6 +33,7 @@ from .const import (
     CONF_TEMPERATURE_SENSOR,
     CONF_UNIQUE_ID,
     DEFAULT_DELAY,
+    DEFAULT_INTENT_TOPIC_BASE,
     DEFAULT_MEDIA_PLAYER_DEVICE_CLASS,
     DOMAIN,
     PLATFORMS,
@@ -173,6 +178,7 @@ class SmartIRConfigFlow(ConfigFlow, domain=DOMAIN):
 
         data = _normalize_user_input(dict(user_input))
         data[CONF_PLATFORM] = platform
+        data[CONF_INTENT_SOURCE_ID] = uuid.uuid4().hex
 
         await self.async_set_unique_id(_make_unique_id(data))
         self._abort_if_unique_id_configured()
@@ -185,6 +191,8 @@ class SmartIRConfigFlow(ConfigFlow, domain=DOMAIN):
         if CONF_PLATFORM not in data:
             _LOGGER.error("YAML import missing 'platform' key: %s", data)
             return self.async_abort(reason="invalid_import")
+
+        data.setdefault(CONF_INTENT_SOURCE_ID, uuid.uuid4().hex)
 
         await self.async_set_unique_id(_make_unique_id(data))
         self._abort_if_unique_id_configured(updates=data)
@@ -220,6 +228,14 @@ class SmartIROptionsFlow(OptionsFlowWithReload):
         )
 
 
+_INTENT_FIELDS = {
+    vol.Optional(CONF_ENABLE_INTENT_SYNC, default=False): selector.BooleanSelector(),
+    vol.Optional(
+        CONF_INTENT_TOPIC_BASE, default=DEFAULT_INTENT_TOPIC_BASE
+    ): selector.TextSelector(),
+}
+
+
 def _options_schema_for(platform: str) -> vol.Schema:
     """Subset of fields users can change post-setup (not name/device_code/controller)."""
     common = {
@@ -243,6 +259,7 @@ def _options_schema_for(platform: str) -> vol.Schema:
                 vol.Optional(
                     CONF_POWER_SENSOR_RESTORE_STATE, default=False
                 ): selector.BooleanSelector(),
+                **_INTENT_FIELDS,
             }
         )
     if platform == Platform.MEDIA_PLAYER.value:
@@ -252,6 +269,7 @@ def _options_schema_for(platform: str) -> vol.Schema:
                     CONF_DEVICE_CLASS, default=DEFAULT_MEDIA_PLAYER_DEVICE_CLASS
                 ): selector.TextSelector(),
                 **common,
+                **_INTENT_FIELDS,
             }
         )
-    return vol.Schema(common)
+    return vol.Schema({**common, **_INTENT_FIELDS})

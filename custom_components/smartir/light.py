@@ -35,13 +35,18 @@ from .const import (
     CONF_CONTROLLER_DATA,
     CONF_DELAY,
     CONF_DEVICE_CODE,
+    CONF_ENABLE_INTENT_SYNC,
+    CONF_INTENT_SOURCE_ID,
+    CONF_INTENT_TOPIC_BASE,
     CONF_PLATFORM,
     CONF_POWER_SENSOR,
     CONF_UNIQUE_ID,
     DEFAULT_DELAY,
+    DEFAULT_INTENT_TOPIC_BASE,
     DOMAIN,
 )
 from .controller import get_controller
+from .intent import SmartIRIntentMixin
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -153,7 +158,7 @@ def closest_match(value, options):
     return len(options) - 1
 
 
-class SmartIRLight(LightEntity, RestoreEntity):
+class SmartIRLight(SmartIRIntentMixin, LightEntity, RestoreEntity):
     def __init__(self, hass, entry: ConfigEntry, config: dict[str, Any], device_data):
         self.hass = hass
         self._entry = entry
@@ -209,6 +214,13 @@ class SmartIRLight(LightEntity, RestoreEntity):
             self._delay,
         )
 
+        self._intent_setup(
+            enabled=bool(config.get(CONF_ENABLE_INTENT_SYNC, False)),
+            topic_base=config.get(CONF_INTENT_TOPIC_BASE, DEFAULT_INTENT_TOPIC_BASE),
+            unique_id=self._attr_unique_id,
+            source_id=entry.data.get(CONF_INTENT_SOURCE_ID),
+        )
+
     async def async_added_to_hass(self):
         """Run when entity about to be added."""
         await super().async_added_to_hass()
@@ -234,6 +246,12 @@ class SmartIRLight(LightEntity, RestoreEntity):
             async_track_state_change_event(
                 self.hass, self._power_sensor, self._async_power_sensor_changed
             )
+
+        await self._intent_subscribe()
+
+    async def async_will_remove_from_hass(self) -> None:
+        self._intent_unsubscribe()
+        await super().async_will_remove_from_hass()
 
     @property
     def name(self): return self._name
@@ -364,8 +382,33 @@ class SmartIRLight(LightEntity, RestoreEntity):
             try:
                 for _ in range(count):
                     await self._controller.send(remote_cmd)
+                await self._intent_publish(self._build_intent_payload())
             except Exception:
                 _LOGGER.exception("Failed to send command to the Light controller")
+
+    def _build_intent_payload(self) -> dict[str, Any]:
+        return {
+            "power": self._power,
+            "brightness": self._brightness,
+            "colortemp": self._colortemp,
+        }
+
+    def _apply_intent(self, payload: dict[str, Any]) -> None:
+        power = payload.get("power")
+        if power in (STATE_ON, STATE_OFF):
+            self._power = power
+
+        brightness = payload.get("brightness")
+        if isinstance(brightness, int) and 0 <= brightness <= 255:
+            self._brightness = brightness
+
+        colortemp = payload.get("colortemp")
+        if (
+            isinstance(colortemp, int)
+            and self._colortemps
+            and self._colortemps[0] <= colortemp <= self._colortemps[-1]
+        ):
+            self._colortemp = colortemp
 
     async def _async_power_sensor_changed(self, event: Event[EventStateChangedData]) -> None:
         """Handle power sensor changes."""
