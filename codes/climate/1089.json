@@ -1,0 +1,104 @@
+{
+    "manufacturer": "MAXE",
+    "supportedModels": [
+        "RC-04"
+    ],
+    "supportedController": "MQTT",
+    "commandsEncoding": "Raw",
+    "minTemperature": 19,
+    "maxTemperature": 27,
+    "precision": 1,
+    "operationModes": [
+        "dry",
+        "cool",
+        "fan_only"
+    ],
+    "fanModes": [
+        "high"
+    ],
+    "swingModes": [
+        "off",
+        "auto"
+    ],
+    "commands": {
+        "off": "{\"ir_code_to_send\": \"DWkcaRwUAnoFFALhDRQCQAdAA8AL4AMHwAtAH+AHA+AHG+AHD+AHL+AfD+AvR+ATN0AbQAPAgwfhDZgCaRyYAg==\"}",
+        "dry": {
+            "high": {
+                "auto": {
+                    "19": "{\"ir_code_to_send\": \"C3EccRwNAuUNDQKEBeABA+ADD0AL4AMD4AMnwAtAH8ALwAfgCxPAG+AbB+AzP+ATO0Ab4AUDBY8CcRyPAg==\"}",
+                    "20": "{\"ir_code_to_send\": \"DW4cbhwHAoYFBwLrDQcCQAfgCwNAG8AD4A8f4AMXgCsBZwLgAxPgJwsD6w0HAuAnM8Av4BM74AcbB+sNZwJuHGcC\"}",
+                    "21": "{\"ir_code_to_send\": \"C3gceBxIAosF/wHzDYAH4AcLgA8B/wGAA+ABI0AXwAMD8w3/AcALQAdAD0ADQAvgLwPgMz/gEztAG0ADwJcH8w1IAngcSAI=\"}",
+                    "22": "{\"ir_code_to_send\": \"DXUcdRwQAn0FEALrDRACQAfAA+ADD0ALwAPAH+ADB0Ab4AMPwAvgDxfAH+ATB+BPO0BXwAMLfQUQAusNZgJ1HGYC\"}",
+                    "23": "{\"ir_code_to_send\": \"DXAccBwQAn8FEALjDRACQAdAA0ALQANAC0ADQAvAA0AP4AcDQBvgBxNAD+APF0Ab4BcD4E874ANXC+MNEALjDX4CcBx+Ag==\"}",
+                    "24": "{\"ir_code_to_send\": \"DXIcchwOAoAFDgLoDQ4CQAfgAwPAE0AHwAPgAx/AC0AbwAvgAwfgDxfgAyPgDwvgTztAV0ADQHcL6A0OAugNfwJyHH8C\"}",
+                    "25": "{\"ir_code_to_send\": \"DYQchBwMAoEFDALwDQwCQAdAA8AL4AMHQAtAA0Af4AcD4AcXwA/AB+AHL+AbD+BPO0BX4AUDBXoChBx6Ag==\"}",
+                    "26": "{\"ir_code_to_send\": \"DYwcjBwIAoUFCALpDQgCQAfAA0APQANAD0AHAukNUCADAQgCQA/gBwPgBxfAD8AH4Acv4BsP4E874AlXBVACjBxQAg==\"}",
+                    "27": "{\"ir_code_to_send\": \"DXEccRwXAngFFwLfDRcCQAdAA0ALwAPgCw9AE+ADA0Ar4AsP4AcX4AMj4BcL4E87QFdAA+ABfwV0AnEcdAI=\"}"
+                },
+                "off": {
+                    "19": "{\"ir_code_to_send\": \"C3EccRwNAuUNDQKEBeABA+ADD0AL4AMD4AMnwAtAH8ALwAfgCxPAG+AbB+AzP+ATO0Ab4AUDBY8CcRyPAg==\"}",
+                    "20": "{\"ir_code_to_send\": \"DW4cbhwHAoYFBwLrDQcCQAfgCwNAG8AD4A8f4AMXgCsBZwLgAxPgJwsD6w0HAuAnM8Av4BM74AcbB+sNZwJuHGcC\"}",
+                    "21": "{\"ir_code_to_send\": \"C3gceBxIAosF/wHzDYAH4AcLgA8B/wGAA+ABI0AXwAMD8w3/AcALQAdAD0ADQAvgLwPgMz/gEztAG0ADwJcH8w1IAngcSAI=\"}",
+                    "22": "{\"ir_code_to_send\": \"DXUcdRwQAn0FEALrDRACQAfAA+ADD0ALwAPAH+ADB0Ab4AMPwAvgDxfAH+ATB+BPO0BXwAMLfQUQAusNZgJ1HGYC\"}",
+                    "23": "{\"ir_code_to_send\": \"DXAccBwQAn8FEALjDRACQAdAA0ALQANAC0ADQAvAA0AP4AcDQBvgBxNAD+APF0Ab4BcD4E874ANXC+MNEALjDX4CcBx+Ag==\"}",
+                    "24": "{\"ir_code_to_send\": \"DXIcchwOAoAFDgLoDQ4CQAfgAwPAE0AHwAPgAx/AC0AbwAvgAwfgDxfgAyPgDwvgTztAV0ADQHcL6A0OAugNfwJyHH8C\"}",
+                    "25": "{\"ir_code_to_send\": \"DYQchBwMAoEFDALwDQwCQAdAA8AL4AMHQAtAA0Af4AcD4AcXwA/AB+AHL+AbD+BPO0BX4AUDBXoChBx6Ag==\"}",
+                    "26": "{\"ir_code_to_send\": \"DYwcjBwIAoUFCALpDQgCQAfAA0APQANAD0AHAukNUCADAQgCQA/gBwPgBxfAD8AH4Acv4BsP4E874AlXBVACjBxQAg==\"}",
+                    "27": "{\"ir_code_to_send\": \"DXEccRwXAngFFwLfDRcCQAdAA0ALwAPgCw9AE+ADA0Ar4AsP4AcX4AMj4BcL4E87QFdAA+ABfwV0AnEcdAI=\"}"
+                }
+            }
+        },
+        "cool": {
+            "high": {
+                "off": {
+                    "19": "{\"ir_code_to_send\": \"C4kciRwDAvoNAwKKBeABA+ADD0AL4AMD4AMn4AMLQCPAD8ALwAfAF+AnB+AvP+AHN+AHD0CHQBML+g0DAvoNWwKJHFsC\"}",
+                    "20": "{\"ir_code_to_send\": \"DWMcYxwQAn4FEALlDRACQAfgCwNAG8AD4AsfQBNAH0AH4AMD4AsT4AMf4BcL4C8/4Ac34A8PC+UNEAJ+BZcCYxyXAg==\"}",
+                    "21": "{\"ir_code_to_send\": \"DXwcfBwOAn8FDgLmDQ4CQAdAA+ADC8APQBNAA0AP4AsD4Asb4AsT4As74A8T4C8/4Ac34AcPQG9AEwvmDQ4CfwV5AnwceQI=\"}",
+                    "22": "{\"ir_code_to_send\": \"DYIcghwLAoMFCwLzDQsCQAfAA+ADD0ALwAPAH+AHB0Af4BsT4Acj4BMP4AtT4BMvwBvgBzfgCw9AEwvzDQsCgwULAoIcCwI=\"}",
+                    "23": "{\"ir_code_to_send\": \"DYAcgBwJAoUFCQLvDQkCQAdAA0ALQANAC0ADQAvAA0AP4AsDQB/AF0ALQAPAD+AvB+AvQ+AHN+ALD0ATC+8NCQKFBVgCgBxYAg==\"}",
+                    "24": "{\"ir_code_to_send\": \"DXQcdBwAAocFAAL0DQACQAcChwU7IANABwEAAsATAvQNO6ADAQACQBcChwU7IANAB+ABA+ABG4ALAfQN4AMj4AMLAQAC4B8D4AVDAwAChwXgHUcF9A0AAocF4AED4AcP4AUbBTsCdBw7Ag==\"}",
+                    "25": "{\"ir_code_to_send\": \"DXUcdRwJAoQFCQLvDQkCQAdAA8AL4AMHQAtAA0Af4AsDA+8NXQLAFwHvDYADwA/gLwdAR+ArO+AHN+ATDwfvDV0CdRxdAg==\"}",
+                    "26": "{\"ir_code_to_send\": \"DW8cbxwyAoIFMgLmDTICQAeAAwEBAkAPQAMDggUyAkAHAeYNgBMCggUBoANAC0ADgA8B5g3gAQtAEwPmDQECQAfgDQNAK0AD4Acf4AUTAeYN4AUPAYIF4AcD4A0fBeYNAQKCBeABA+ATDwfmDTICbxwyAg==\"}",
+                    "27": "{\"ir_code_to_send\": \"DXMccxwRAn0FEQLkDRECQAdAA0ALwAPgCw9AE+AHA0Av4AMT4AcP4AMb4B8L4C9D4Ac34AcPQH/AEwfkDXACcxxwAg==\"}"
+                },
+                "auto": {
+                    "19": "{\"ir_code_to_send\": \"DX8cfxwCAvgNAgKLBQICwAPgAw8C+A1WIAMBAgLAA8Aj4AcHQB/AE8ALwAfAF+AnB+AzP+ADO+ADC0CDQA/gAQMFVgJ/HFYC\"}",
+                    "20": "{\"ir_code_to_send\": \"DX4cfhwAAokFAALyDQACQAfgCwMC8g094AAD4AsfQBMD8g0AAkAHwAMC8g09IAMBAALAD+AFBwA94AYP4AcfgA/gET8BAALgFwPgAzvgAwvgBzcH8g09An4cPQI=\"}",
+                    "21": "{\"ir_code_to_send\": \"DXYcdhwUAn4FFALgDRQCQAdAA+ADC8APQBNAA0AP4AsD4AEbA5QBfgWAD+ABEwEUAuArA+AzP+ADO+ADC0CH4AMPB+ANcgJ2HHIC\"}",
+                    "22": "{\"ir_code_to_send\": \"DYAcgBwIAoYFCALvDQgCQAfAA+ADD0ALwAPAH+AHB0Af4AMTQA9AA+ADE+AnC+AzP+ADO+ADC8CDwBMH7w1aAoAcWgI=\"}",
+                    "23": "{\"ir_code_to_send\": \"DYAcgBwTAn0FEwLhDRMCQAdAA0ALQANAC0ADQAvAA0AP4AsDQB/AF0ALwAPAE+ArB0BD4Cs3QDPgAzvgAwtAG8ADC+ENEwLhDWYCgBxmAg==\"}",
+                    "24": "{\"ir_code_to_send\": \"DX0cfRwHAoYFBwL1DQcCQAfgAwPAE0AHwAPgAx/gAwtAH8APQAvAA8AT4CsHQEPgKzdAM+ADO+ADC+ADGwv1DQcC9Q17An0cewI=\"}",
+                    "25": "{\"ir_code_to_send\": \"DYcchxwMAoIFDALvDQwCQAdAA8ALA+8NVALADwHvDYADQA/gCwNAH8AXQAvAA8AT4CsHQEPgKzdAM+ADO+ADC0AbQANAEwvvDQwC7w0MAoccVAI=\"}",
+                    "26": "{\"ir_code_to_send\": \"DW0cbRwOAoAFDgLnDQ4CQAfAA0APQANAD0AHwANAD+ALA0Af4CMX4Asr4AcT4A9T4Acn4AsP4AM74AML4AkrBZQCbRyUAg==\"}",
+                    "27": "{\"ir_code_to_send\": \"DYAcgBwVAnoFFQLdDRUCQAdAA0ALwAPgCw9AE+AHA0AvwBPgDwvAH+AfB+ADR+AfM8An4AM74AML4AkfBWUCgBxlAg==\"}"
+                }
+            }
+        },
+        "fan_only": {
+            "high": {
+                "auto": {
+                    "19": "{\"ir_code_to_send\": \"DWocahwQAoEFEALcDRACQAdAA0ALQANAC0ADQAvAA0AP4AcDQBvgAxNAD8AD4AMX4B8LQDvgHyvgDyfgA0PgAwvgBy8H3A2MAmocjAI=\"}",
+                    "20": "{\"ir_code_to_send\": \"DWocahwQAoEFEALcDRACQAdAA0ALQANAC0ADQAvAA0AP4AcDQBvgAxNAD8AD4AMX4B8LQDvgHyvgDyfgA0PgAwvgBy8H3A2MAmocjAI=\"}",
+                    "21": "{\"ir_code_to_send\": \"DWocahwQAoEFEALcDRACQAdAA0ALQANAC0ADQAvAA0AP4AcDQBvgAxNAD8AD4AMX4B8LQDvgHyvgDyfgA0PgAwvgBy8H3A2MAmocjAI=\"}",
+                    "22": "{\"ir_code_to_send\": \"DWocahwQAoEFEALcDRACQAdAA0ALQANAC0ADQAvAA0AP4AcDQBvgAxNAD8AD4AMX4B8LQDvgHyvgDyfgA0PgAwvgBy8H3A2MAmocjAI=\"}",
+                    "23": "{\"ir_code_to_send\": \"DWocahwQAoEFEALcDRACQAdAA0ALQANAC0ADQAvAA0AP4AcDQBvgAxNAD8AD4AMX4B8LQDvgHyvgDyfgA0PgAwvgBy8H3A2MAmocjAI=\"}",
+                    "24": "{\"ir_code_to_send\": \"DWocahwQAoEFEALcDRACQAdAA0ALQANAC0ADQAvAA0AP4AcDQBvgAxNAD8AD4AMX4B8LQDvgHyvgDyfgA0PgAwvgBy8H3A2MAmocjAI=\"}",
+                    "25": "{\"ir_code_to_send\": \"DWocahwQAoEFEALcDRACQAdAA0ALQANAC0ADQAvAA0AP4AcDQBvgAxNAD8AD4AMX4B8LQDvgHyvgDyfgA0PgAwvgBy8H3A2MAmocjAI=\"}",
+                    "26": "{\"ir_code_to_send\": \"DWocahwQAoEFEALcDRACQAdAA0ALQANAC0ADQAvAA0AP4AcDQBvgAxNAD8AD4AMX4B8LQDvgHyvgDyfgA0PgAwvgBy8H3A2MAmocjAI=\"}",
+                    "27": "{\"ir_code_to_send\": \"DWocahwQAoEFEALcDRACQAdAA0ALQANAC0ADQAvAA0AP4AcDQBvgAxNAD8AD4AMX4B8LQDvgHyvgDyfgA0PgAwvgBy8H3A2MAmocjAI=\"}"
+                },
+                "off": {
+                    "19": "{\"ir_code_to_send\": \"DWocahwQAoEFEALcDRACQAdAA0ALQANAC0ADQAvAA0AP4AcDQBvgAxNAD8AD4AMX4B8LQDvgHyvgDyfgA0PgAwvgBy8H3A2MAmocjAI=\"}",
+                    "20": "{\"ir_code_to_send\": \"DWocahwQAoEFEALcDRACQAdAA0ALQANAC0ADQAvAA0AP4AcDQBvgAxNAD8AD4AMX4B8LQDvgHyvgDyfgA0PgAwvgBy8H3A2MAmocjAI=\"}",
+                    "21": "{\"ir_code_to_send\": \"DWocahwQAoEFEALcDRACQAdAA0ALQANAC0ADQAvAA0AP4AcDQBvgAxNAD8AD4AMX4B8LQDvgHyvgDyfgA0PgAwvgBy8H3A2MAmocjAI=\"}",
+                    "22": "{\"ir_code_to_send\": \"DWocahwQAoEFEALcDRACQAdAA0ALQANAC0ADQAvAA0AP4AcDQBvgAxNAD8AD4AMX4B8LQDvgHyvgDyfgA0PgAwvgBy8H3A2MAmocjAI=\"}",
+                    "23": "{\"ir_code_to_send\": \"DWocahwQAoEFEALcDRACQAdAA0ALQANAC0ADQAvAA0AP4AcDQBvgAxNAD8AD4AMX4B8LQDvgHyvgDyfgA0PgAwvgBy8H3A2MAmocjAI=\"}",
+                    "24": "{\"ir_code_to_send\": \"DWocahwQAoEFEALcDRACQAdAA0ALQANAC0ADQAvAA0AP4AcDQBvgAxNAD8AD4AMX4B8LQDvgHyvgDyfgA0PgAwvgBy8H3A2MAmocjAI=\"}",
+                    "25": "{\"ir_code_to_send\": \"DWocahwQAoEFEALcDRACQAdAA0ALQANAC0ADQAvAA0AP4AcDQBvgAxNAD8AD4AMX4B8LQDvgHyvgDyfgA0PgAwvgBy8H3A2MAmocjAI=\"}",
+                    "26": "{\"ir_code_to_send\": \"DWocahwQAoEFEALcDRACQAdAA0ALQANAC0ADQAvAA0AP4AcDQBvgAxNAD8AD4AMX4B8LQDvgHyvgDyfgA0PgAwvgBy8H3A2MAmocjAI=\"}",
+                    "27": "{\"ir_code_to_send\": \"DWocahwQAoEFEALcDRACQAdAA0ALQANAC0ADQAvAA0AP4AcDQBvgAxNAD8AD4AMX4B8LQDvgHyvgDyfgA0PgAwvgBy8H3A2MAmocjAI=\"}"
+                }
+            }
+        }
+    }
+}
