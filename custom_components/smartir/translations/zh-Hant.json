@@ -68,7 +68,13 @@
           "humidity_sensor": "濕度感測器",
           "power_sensor": "電源感測器",
           "power_sensor_restore_state": "電源感測器開啟時還原上一次運轉模式",
-          "device_class": "Device class"
+          "device_class": "Device class",
+          "enable_intent_sync": "透過 MQTT intent topic 跨 HA 同步狀態",
+          "intent_topic_base": "Intent topic 前綴（預設 smartir/intent）"
+        },
+        "data_description": {
+          "enable_intent_sync": "啟用後，本 entity 每次發送指令成功，會把狀態 publish 到一個 retained MQTT topic；同時訂閱該 topic，收到其他 HA 的 intent 時更新自身狀態。需要先設定 MQTT 整合。每筆設定會自動產生 UUID 作為 publish 來源，避免迴圈。",
+          "intent_topic_base": "Topic 前綴；完整 topic 為 <前綴>/<unique_id>。"
         }
       }
     }
