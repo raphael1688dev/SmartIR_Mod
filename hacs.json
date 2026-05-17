@@ -1,5 +1,5 @@
 {
   "name": "SmartIR(Mod)",
-  "homeassistant": "2026.5.0",
+  "homeassistant": "2025.5.0",
   "persistent_directory": "codes"
 }
