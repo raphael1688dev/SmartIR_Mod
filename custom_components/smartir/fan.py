@@ -179,14 +179,18 @@ class SmartIRFan(FanEntity, RestoreEntity):
         last_state = await self.async_get_last_state()
 
         if last_state is not None:
-            if 'speed' in last_state.attributes:
-                self._speed = last_state.attributes['speed']
+            restored_speed = last_state.attributes.get('speed')
+            if restored_speed == SPEED_OFF or restored_speed in self._speed_list:
+                self._speed = restored_speed
 
-            if 'direction' in last_state.attributes and (self._support_flags & FanEntityFeature.DIRECTION):
-                self._direction = last_state.attributes['direction']
+            if self._support_flags & FanEntityFeature.DIRECTION:
+                restored_direction = last_state.attributes.get('direction')
+                if restored_direction in (DIRECTION_FORWARD, DIRECTION_REVERSE):
+                    self._direction = restored_direction
 
-            if 'last_on_speed' in last_state.attributes:
-                self._last_on_speed = last_state.attributes['last_on_speed']
+            restored_last_on_speed = last_state.attributes.get('last_on_speed')
+            if restored_last_on_speed in self._speed_list:
+                self._last_on_speed = restored_last_on_speed
 
         if self._power_sensor:
             async_track_state_change_event(

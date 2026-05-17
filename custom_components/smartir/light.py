@@ -215,11 +215,20 @@ class SmartIRLight(LightEntity, RestoreEntity):
 
         last_state = await self.async_get_last_state()
         if last_state is not None:
-            self._power = last_state.state
-            if ATTR_BRIGHTNESS in last_state.attributes:
-                self._brightness = last_state.attributes[ATTR_BRIGHTNESS]
-            if ATTR_COLOR_TEMP_KELVIN in last_state.attributes:
-                self._colortemp = last_state.attributes[ATTR_COLOR_TEMP_KELVIN]
+            if last_state.state in (STATE_ON, STATE_OFF):
+                self._power = last_state.state
+
+            restored_brightness = last_state.attributes.get(ATTR_BRIGHTNESS)
+            if isinstance(restored_brightness, int) and 0 <= restored_brightness <= 255:
+                self._brightness = restored_brightness
+
+            restored_colortemp = last_state.attributes.get(ATTR_COLOR_TEMP_KELVIN)
+            if (
+                isinstance(restored_colortemp, int)
+                and self._colortemps
+                and self._colortemps[0] <= restored_colortemp <= self._colortemps[-1]
+            ):
+                self._colortemp = restored_colortemp
 
         if self._power_sensor:
             async_track_state_change_event(

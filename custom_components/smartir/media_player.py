@@ -188,7 +188,7 @@ class SmartIRMediaPlayer(MediaPlayerEntity, RestoreEntity):
         await super().async_added_to_hass()
 
         last_state = await self.async_get_last_state()
-        if last_state is not None:
+        if last_state is not None and last_state.state in (STATE_ON, STATE_OFF):
             self._state = last_state.state
 
         if self._power_sensor:
