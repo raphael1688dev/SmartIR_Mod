@@ -202,10 +202,20 @@ class SmartIRClimate(ClimateEntity, RestoreEntity):
         last_state = await self.async_get_last_state()
 
         if last_state is not None:
-            self._hvac_mode = last_state.state if last_state.state in self._operation_modes else HVACMode.OFF
-            self._current_fan_mode = last_state.attributes.get('fan_mode', self._fan_modes[0])
-            self._current_swing_mode = last_state.attributes.get('swing_mode')
-            self._target_temperature = last_state.attributes.get('temperature', self._min_temperature)
+            if last_state.state in self._operation_modes:
+                self._hvac_mode = last_state.state
+
+            restored_fan_mode = last_state.attributes.get('fan_mode')
+            if restored_fan_mode in self._fan_modes:
+                self._current_fan_mode = restored_fan_mode
+
+            restored_swing_mode = last_state.attributes.get('swing_mode')
+            if self._swing_modes and restored_swing_mode in self._swing_modes:
+                self._current_swing_mode = restored_swing_mode
+
+            restored_temp = last_state.attributes.get('temperature')
+            if isinstance(restored_temp, (int, float)) and self._min_temperature <= restored_temp <= self._max_temperature:
+                self._target_temperature = restored_temp
 
             if 'last_on_operation' in last_state.attributes:
                 self._last_on_operation = last_state.attributes['last_on_operation']
