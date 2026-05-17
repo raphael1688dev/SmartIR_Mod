@@ -5,6 +5,7 @@ import binascii
 import logging
 import os.path
 import struct
+import uuid
 
 import aiofiles
 import aiohttp
@@ -14,7 +15,7 @@ from homeassistant.core import HomeAssistant
 import homeassistant.helpers.config_validation as cv
 from homeassistant.helpers.typing import ConfigType
 
-from .const import CONF_PLATFORM, DOMAIN, PLATFORMS
+from .const import CONF_INTENT_SOURCE_ID, CONF_PLATFORM, DOMAIN, PLATFORMS
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -34,6 +35,18 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     if platform not in {p.value for p in PLATFORMS}:
         _LOGGER.error("Unknown platform in config entry %s: %r", entry.entry_id, platform)
         return False
+
+    # Backfill intent_source_id for entries created before intent sync existed.
+    if CONF_INTENT_SOURCE_ID not in entry.data:
+        hass.config_entries.async_update_entry(
+            entry,
+            data={**entry.data, CONF_INTENT_SOURCE_ID: uuid.uuid4().hex},
+        )
+        _LOGGER.info(
+            "Backfilled intent_source_id for entry '%s' (%s).",
+            entry.title, entry.entry_id,
+        )
+
     await hass.config_entries.async_forward_entry_setups(entry, [platform])
     return True
 
