@@ -1,0 +1,28 @@
+{
+  "domain": "smartir",
+  "name": "SmartIR",
+  "documentation": "https://github.com/raphael1688dev/SmartIR",
+  "issue_tracker": "https://github.com/raphael1688dev/SmartIR/issues",
+  "dependencies": [],
+  "codeowners": ["@smartHomeHub"],
+  "config_flow": true,
+  "requirements": ["aiofiles>=0.6.0"],
+  "integration_type": "hub",
+  "iot_class": "local_push",
+  "homeassistant": "2026.5.0",
+  "version": "20260505r1",
+  "updater": {
+    "version": "20260505r1",
+    "releaseNotes": "-- Implements zero-polling architecture, modern async I/O, and awesomeversion compatibility",
+    "files": [
+      "__init__.py",
+      "climate.py",
+      "media_player.py",
+      "fan.py",
+      "light.py",
+      "controller.py",
+      "manifest.json",
+      "services.yaml"
+    ]
+  }
+}

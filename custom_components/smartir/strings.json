@@ -1,0 +1,86 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "SmartIR",
+        "description": "Choose the entity platform for this device.",
+        "data": {
+          "platform": "Entity platform"
+        }
+      },
+      "climate": {
+        "title": "Add SmartIR climate",
+        "data": {
+          "name": "Name",
+          "device_code": "Device code",
+          "controller_data": "Controller data (remote entity ID, MQTT topic, host, or service)",
+          "delay": "Delay between commands (seconds)",
+          "temperature_sensor": "Temperature sensor",
+          "humidity_sensor": "Humidity sensor",
+          "power_sensor": "Power sensor",
+          "power_sensor_restore_state": "Restore last on operation when power sensor turns on"
+        }
+      },
+      "media_player": {
+        "title": "Add SmartIR media player",
+        "data": {
+          "name": "Name",
+          "device_code": "Device code",
+          "controller_data": "Controller data",
+          "delay": "Delay between commands (seconds)",
+          "device_class": "Device class",
+          "power_sensor": "Power sensor"
+        }
+      },
+      "fan": {
+        "title": "Add SmartIR fan",
+        "data": {
+          "name": "Name",
+          "device_code": "Device code",
+          "controller_data": "Controller data",
+          "delay": "Delay between commands (seconds)",
+          "power_sensor": "Power sensor"
+        }
+      },
+      "light": {
+        "title": "Add SmartIR light",
+        "data": {
+          "name": "Name",
+          "device_code": "Device code",
+          "controller_data": "Controller data",
+          "delay": "Delay between commands (seconds)",
+          "power_sensor": "Power sensor"
+        }
+      }
+    },
+    "abort": {
+      "already_configured": "This SmartIR device is already configured.",
+      "invalid_import": "YAML import is missing required fields."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "SmartIR options",
+        "data": {
+          "delay": "Delay between commands (seconds)",
+          "temperature_sensor": "Temperature sensor",
+          "humidity_sensor": "Humidity sensor",
+          "power_sensor": "Power sensor",
+          "power_sensor_restore_state": "Restore last on operation when power sensor turns on",
+          "device_class": "Device class"
+        }
+      }
+    }
+  },
+  "selector": {
+    "platform": {
+      "options": {
+        "climate": "Climate (air conditioner / heat pump)",
+        "media_player": "Media player (TV / receiver)",
+        "fan": "Fan",
+        "light": "Light"
+      }
+    }
+  }
+}
