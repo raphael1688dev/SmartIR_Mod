@@ -1,0 +1,86 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "SmartIR",
+        "description": "選擇此設備使用的 entity 平台。",
+        "data": {
+          "platform": "Entity 平台"
+        }
+      },
+      "climate": {
+        "title": "新增 SmartIR 空調",
+        "data": {
+          "name": "名稱",
+          "device_code": "Device code",
+          "controller_data": "Controller data（remote entity / MQTT topic / 主機 / 服務名）",
+          "delay": "指令間隔（秒）",
+          "temperature_sensor": "溫度感測器",
+          "humidity_sensor": "濕度感測器",
+          "power_sensor": "電源感測器",
+          "power_sensor_restore_state": "電源感測器開啟時還原上一次運轉模式"
+        }
+      },
+      "media_player": {
+        "title": "新增 SmartIR 媒體播放器",
+        "data": {
+          "name": "名稱",
+          "device_code": "Device code",
+          "controller_data": "Controller data",
+          "delay": "指令間隔（秒）",
+          "device_class": "Device class",
+          "power_sensor": "電源感測器"
+        }
+      },
+      "fan": {
+        "title": "新增 SmartIR 風扇",
+        "data": {
+          "name": "名稱",
+          "device_code": "Device code",
+          "controller_data": "Controller data",
+          "delay": "指令間隔（秒）",
+          "power_sensor": "電源感測器"
+        }
+      },
+      "light": {
+        "title": "新增 SmartIR 燈具",
+        "data": {
+          "name": "名稱",
+          "device_code": "Device code",
+          "controller_data": "Controller data",
+          "delay": "指令間隔（秒）",
+          "power_sensor": "電源感測器"
+        }
+      }
+    },
+    "abort": {
+      "already_configured": "此 SmartIR 設備已設定。",
+      "invalid_import": "YAML 匯入缺少必要欄位。"
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "SmartIR 設定",
+        "data": {
+          "delay": "指令間隔（秒）",
+          "temperature_sensor": "溫度感測器",
+          "humidity_sensor": "濕度感測器",
+          "power_sensor": "電源感測器",
+          "power_sensor_restore_state": "電源感測器開啟時還原上一次運轉模式",
+          "device_class": "Device class"
+        }
+      }
+    }
+  },
+  "selector": {
+    "platform": {
+      "options": {
+        "climate": "空調（Climate）",
+        "media_player": "媒體播放器（Media Player）",
+        "fan": "風扇（Fan）",
+        "light": "燈具（Light）"
+      }
+    }
+  }
+}
