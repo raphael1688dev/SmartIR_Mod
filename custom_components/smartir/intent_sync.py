@@ -73,9 +73,13 @@ class SmartIRIntentMixin:
         """Subscribe to the intent topic. Call from async_added_to_hass."""
         if not self._intent_enabled or not self._intent_topic:
             return
-        if not mqtt.mqtt_config_entry_enabled(self.hass):
+        # Wait for the MQTT integration to finish loading. SmartIR can race
+        # ahead of MQTT during startup (especially when both are setting up
+        # in parallel after a HA restart). `mqtt_config_entry_enabled` returns
+        # True before `hass.data['mqtt']` is populated, so use the proper wait.
+        if not await mqtt.async_wait_for_mqtt_client(self.hass):
             _LOGGER.warning(
-                "SmartIR intent sync enabled but MQTT integration not configured; "
+                "SmartIR intent sync enabled but MQTT integration not available; "
                 "skipping subscribe to %s",
                 self._intent_topic,
             )
@@ -99,7 +103,7 @@ class SmartIRIntentMixin:
         """Publish intent (retain=true). Call after successful IR send."""
         if not self._intent_enabled or not self._intent_topic:
             return
-        if not mqtt.mqtt_config_entry_enabled(self.hass):
+        if not await mqtt.async_wait_for_mqtt_client(self.hass):
             return
         message = {
             **payload,

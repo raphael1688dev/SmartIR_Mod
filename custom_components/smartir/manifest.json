@@ -4,11 +4,12 @@
   "documentation": "https://github.com/raphael1688dev/SmartIR_Mod",
   "issue_tracker": "https://github.com/raphael1688dev/SmartIR_Mod/issues",
   "dependencies": [],
+  "after_dependencies": ["mqtt"],
   "codeowners": ["@raphael1688dev"],
   "config_flow": true,
   "requirements": ["aiofiles>=0.6.0"],
   "integration_type": "hub",
   "iot_class": "local_push",
   "homeassistant": "2026.5.0",
-  "version": "20260518r0"
+  "version": "20260518r1"
 }
