@@ -14,7 +14,7 @@ A fork of [smartHomeHub/SmartIR](https://github.com/smartHomeHub/SmartIR) modern
 | Setup | YAML platform setup | **Config Flow (UI) + YAML soft-import** |
 | Updates | Built-in self-updater | Removed — use HACS |
 | Bug fixes | — | `hass.components.*` removed, `async_add_executor_job` kwargs, `@callback`/`async def`, `Helper.downloader` signature, `swing_mode` restore validation, full restore-state hardening across all platforms |
-| Multi-HA support | Each HA's state drifts independently | **Optional MQTT intent topic** for cross-HA state sync |
+| Multi-HA support | Each HA's state drifts independently | **Optional MQTT intent topic** for cross-HA state sync (topic derived from physical device identity, not entity name) |
 | codes source | Downloads from `smartHomeHub/SmartIR` | Downloads from this fork (`raphael1688dev/SmartIR_Mod`) — different `supportedController` values for many device codes |
 
 ---
@@ -102,7 +102,22 @@ Encoding (`commandsEncoding` in device JSON): `Raw`, `Base64`, `Hex`, or `Pronto
 
 When two or more HA instances share the same physical IR device (e.g., a vacation home + main home, or redundant HAs), they previously drifted into inconsistent state because IR is unidirectional and Z2M's IR blasters don't echo sent codes back.
 
-This fork adds an **opt-in MQTT "intent" topic**: after each successful IR command, the entity publishes its current state (retained) to `<topic_base>/<unique_id>`. Other HA instances subscribe and update their entity state — **without re-sending IR** (loop-prevented via per-entry UUID).
+This fork adds an **opt-in MQTT "intent" topic**: after each successful IR command, the entity publishes its current state (retained) to `<topic_base>/<intent_id>`. Other HA instances subscribe and update their entity state — **without re-sending IR** (loop-prevented via per-entry UUID).
+
+### Topic identity (`intent_id`)
+
+The topic suffix is derived from the **physical device identity**, not the entity name or HA-assigned `unique_id`:
+
+```
+intent_id = f"{platform}_{device_code}_{slug(controller_data)}"
+```
+
+Example for an MQTT-controlled Hitachi AC at `zigbee2mqtt_3F/0xb0c7defffe5f308e/set`:
+```
+smartir/intent/climate_1090_zigbee2mqtt_3f_0xb0c7defffe5f308e_set
+```
+
+This means **HA1 and HA2 produce the same intent topic for the same physical device** as long as they share `device_code` and `controller_data` (which they must, to control the same device). Entity names can legitimately differ across instances (e.g., "Master AC" vs "主臥冷氣") — only the physical identity matters.
 
 ### Enabling
 
@@ -112,13 +127,14 @@ For each device, on each HA instance:
 3. Optionally change the topic base (default `smartir/intent`)
 4. Submit; the entry reloads automatically
 
-Requires the HA MQTT integration to be configured and pointing at the same broker on all instances.
+Requires the HA MQTT integration to be configured and pointing at the same broker on all instances. The integration declares `after_dependencies: ["mqtt"]` and runtime-waits for the MQTT client to become available before subscribing — no manual ordering needed.
 
 ### Caveats
 
 - IR remote control by a physical remote is **not** synchronised (IR is one-way; no reverse channel).
 - If MQTT is disconnected on an HA, that HA misses updates until reconnection; on reconnect, the retained intent is delivered immediately, so it catches up.
 - All HAs must run the same major version of this integration to keep payload schemas compatible.
+- If you change `controller_data` (e.g., move device to a new MQTT topic / new remote), the `intent_id` changes too, leaving the old retained message orphaned on the broker. Clear it with `mosquitto_pub -h <broker> -r -n -t '<old_topic>'` if desired.
 
 ---
 
