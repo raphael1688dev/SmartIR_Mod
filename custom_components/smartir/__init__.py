@@ -15,7 +15,16 @@ from homeassistant.core import HomeAssistant
 import homeassistant.helpers.config_validation as cv
 from homeassistant.helpers.typing import ConfigType
 
-from .const import CONF_INTENT_SOURCE_ID, CONF_PLATFORM, DOMAIN, PLATFORMS
+from .const import (
+    CONF_CONTROLLER_DATA,
+    CONF_DEVICE_CODE,
+    CONF_INTENT_ID,
+    CONF_INTENT_SOURCE_ID,
+    CONF_PLATFORM,
+    DOMAIN,
+    PLATFORMS,
+)
+from .intent_sync import compute_intent_id
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -36,15 +45,23 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         _LOGGER.error("Unknown platform in config entry %s: %r", entry.entry_id, platform)
         return False
 
-    # Backfill intent_source_id for entries created before intent sync existed.
+    # Backfill intent metadata for entries created before each feature existed.
+    backfill: dict[str, str] = {}
     if CONF_INTENT_SOURCE_ID not in entry.data:
+        backfill[CONF_INTENT_SOURCE_ID] = uuid.uuid4().hex
+    if CONF_INTENT_ID not in entry.data:
+        backfill[CONF_INTENT_ID] = compute_intent_id(
+            platform,
+            entry.data[CONF_DEVICE_CODE],
+            entry.data[CONF_CONTROLLER_DATA],
+        )
+    if backfill:
         hass.config_entries.async_update_entry(
-            entry,
-            data={**entry.data, CONF_INTENT_SOURCE_ID: uuid.uuid4().hex},
+            entry, data={**entry.data, **backfill}
         )
         _LOGGER.info(
-            "Backfilled intent_source_id for entry '%s' (%s).",
-            entry.title, entry.entry_id,
+            "Backfilled %s for entry '%s' (%s).",
+            ", ".join(backfill), entry.title, entry.entry_id,
         )
 
     await hass.config_entries.async_forward_entry_setups(entry, [platform])

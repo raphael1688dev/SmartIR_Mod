@@ -19,6 +19,7 @@ from __future__ import annotations
 from collections.abc import Callable
 import json
 import logging
+import re
 from typing import Any
 
 from homeassistant.components import mqtt
@@ -27,6 +28,19 @@ from homeassistant.exceptions import HomeAssistantError
 from homeassistant.util import dt as dt_util
 
 _LOGGER = logging.getLogger(__name__)
+
+
+def compute_intent_id(platform: str, device_code: int | str, controller_data: str) -> str:
+    """Derive a deterministic intent topic identifier from physical device identity.
+
+    Two HA instances controlling the same physical device share the same
+    `platform`, `device_code`, and `controller_data` regardless of how each
+    HA was configured (Config Flow vs YAML). The user-chosen `name` and the
+    HA-assigned `unique_id` are NOT part of the identity — they may legitimately
+    differ across HAs.
+    """
+    slug = re.sub(r"\W+", "_", str(controller_data).lower()).strip("_")
+    return f"{platform}_{device_code}_{slug}"
 
 
 class SmartIRIntentMixin:
@@ -38,14 +52,20 @@ class SmartIRIntentMixin:
         self,
         enabled: bool,
         topic_base: str,
-        unique_id: str | None,
+        intent_id: str | None,
         source_id: str | None,
     ) -> None:
-        """Initialize intent sync state. Call from entity __init__."""
-        self._intent_enabled: bool = bool(enabled and unique_id and source_id)
+        """Initialize intent sync state. Call from entity __init__.
+
+        `intent_id` is the deterministic physical-identity slug (see
+        `compute_intent_id`), NOT the HA entity unique_id. This decouples the
+        cross-HA topic from per-instance unique_id quirks (e.g., Config Flow
+        fallback vs YAML explicit unique_id).
+        """
+        self._intent_enabled: bool = bool(enabled and intent_id and source_id)
         self._intent_source: str = source_id or ""
         self._intent_topic: str | None = (
-            f"{topic_base.rstrip('/')}/{unique_id}" if self._intent_enabled else None
+            f"{topic_base.rstrip('/')}/{intent_id}" if self._intent_enabled else None
         )
         self._intent_unsub: Callable[[], None] | None = None
 

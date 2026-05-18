@@ -30,6 +30,7 @@ from .const import (
     CONF_DEVICE_CODE,
     CONF_ENABLE_INTENT_SYNC,
     CONF_HUMIDITY_SENSOR,
+    CONF_INTENT_ID,
     CONF_INTENT_SOURCE_ID,
     CONF_INTENT_TOPIC_BASE,
     CONF_PLATFORM,
@@ -202,7 +203,7 @@ class SmartIRClimate(SmartIRIntentMixin, ClimateEntity, RestoreEntity):
         self._intent_setup(
             enabled=bool(config.get(CONF_ENABLE_INTENT_SYNC, False)),
             topic_base=config.get(CONF_INTENT_TOPIC_BASE, DEFAULT_INTENT_TOPIC_BASE),
-            unique_id=self._attr_unique_id,
+            intent_id=entry.data.get(CONF_INTENT_ID),
             source_id=entry.data.get(CONF_INTENT_SOURCE_ID),
         )
 

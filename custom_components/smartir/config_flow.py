@@ -24,6 +24,7 @@ from .const import (
     CONF_DEVICE_CODE,
     CONF_ENABLE_INTENT_SYNC,
     CONF_HUMIDITY_SENSOR,
+    CONF_INTENT_ID,
     CONF_INTENT_SOURCE_ID,
     CONF_INTENT_TOPIC_BASE,
     CONF_PLATFORM,
@@ -38,6 +39,7 @@ from .const import (
     DOMAIN,
     PLATFORMS,
 )
+from .intent_sync import compute_intent_id
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -179,6 +181,9 @@ class SmartIRConfigFlow(ConfigFlow, domain=DOMAIN):
         data = _normalize_user_input(dict(user_input))
         data[CONF_PLATFORM] = platform
         data[CONF_INTENT_SOURCE_ID] = uuid.uuid4().hex
+        data[CONF_INTENT_ID] = compute_intent_id(
+            platform, data[CONF_DEVICE_CODE], data[CONF_CONTROLLER_DATA]
+        )
 
         await self.async_set_unique_id(_make_unique_id(data))
         self._abort_if_unique_id_configured()
@@ -193,6 +198,9 @@ class SmartIRConfigFlow(ConfigFlow, domain=DOMAIN):
             return self.async_abort(reason="invalid_import")
 
         data.setdefault(CONF_INTENT_SOURCE_ID, uuid.uuid4().hex)
+        data[CONF_INTENT_ID] = compute_intent_id(
+            data[CONF_PLATFORM], data[CONF_DEVICE_CODE], data[CONF_CONTROLLER_DATA]
+        )
 
         await self.async_set_unique_id(_make_unique_id(data))
         self._abort_if_unique_id_configured(updates=data)
