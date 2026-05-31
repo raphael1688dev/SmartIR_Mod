@@ -1,5 +1,7 @@
 # SmartIR(Mod)
 
+[![Lint](https://github.com/raphael1688dev/SmartIR_Mod/actions/workflows/lint.yml/badge.svg)](https://github.com/raphael1688dev/SmartIR_Mod/actions/workflows/lint.yml)
+
 A fork of [smartHomeHub/SmartIR](https://github.com/smartHomeHub/SmartIR) modernised for Home Assistant **2026.5+**, with Config Flow setup, multi-HA state sync over MQTT, and several pre-existing bugs fixed.
 
 > ⚠️ This fork respects the upstream project's name guideline. It is published under the distinct name **SmartIR(Mod)**, not "SmartIR".

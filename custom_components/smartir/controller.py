@@ -136,11 +136,15 @@ class MQTTController(AbstractController):
     SUPPORTED_ENCODINGS = {ENC_RAW}
 
     async def send(self, command: str) -> None:
-        """Send a command."""
-        _command = command.replace("\\", "")
+        """Send a command.
+
+        `command` is the JSON-decoded string stored in the device JSON; e.g.,
+        `'{"ir_code_to_send": "<base64>"}'` for Zigbee2MQTT IR blasters. It is
+        published verbatim as the MQTT payload.
+        """
         service_data = {
             'topic': self._controller_data,
-            'payload': _command
+            'payload': command,
         }
         await self.hass.services.async_call('mqtt', 'publish', service_data)
 

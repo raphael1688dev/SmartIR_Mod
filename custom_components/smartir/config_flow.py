@@ -30,7 +30,6 @@ from .const import (
     CONF_PLATFORM,
     CONF_POWER_SENSOR,
     CONF_POWER_SENSOR_RESTORE_STATE,
-    CONF_SOURCE_NAMES,
     CONF_TEMPERATURE_SENSOR,
     CONF_UNIQUE_ID,
     DEFAULT_DELAY,
@@ -124,7 +123,20 @@ def _normalize_user_input(data: dict[str, Any]) -> dict[str, Any]:
 
 
 def _make_unique_id(data: dict[str, Any]) -> str:
-    """Return a stable unique id: user-supplied or generated."""
+    """Compute the HA ConfigEntry / entity unique_id.
+
+    - If the YAML import explicitly provided `unique_id`, use it verbatim
+      (preserves entity_id continuity for users migrating from upstream).
+    - Otherwise (typical Config Flow path), derive from platform + device_code
+      + raw name. The raw name may contain spaces — that's fine for entity_id
+      derivation.
+
+    NOTE: this identifier is for HA's entity registry ONLY. It is NOT used to
+    build the cross-HA MQTT intent topic. Topic identity uses
+    `compute_intent_id(platform, device_code, controller_data)` instead, which
+    is derived from physical device identity so HA1 (Config Flow) and HA2
+    (YAML) produce the same topic regardless of how their unique_ids differ.
+    """
     if explicit := data.get(CONF_UNIQUE_ID):
         return str(explicit)
     return f"{data[CONF_PLATFORM]}_{data[CONF_DEVICE_CODE]}_{data[CONF_NAME]}"

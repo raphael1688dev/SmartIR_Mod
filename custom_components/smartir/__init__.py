@@ -9,10 +9,10 @@ import uuid
 
 import aiofiles
 import aiohttp
+import voluptuous as vol
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
-import homeassistant.helpers.config_validation as cv
 from homeassistant.helpers.typing import ConfigType
 
 from .const import (
@@ -30,11 +30,35 @@ _LOGGER = logging.getLogger(__name__)
 
 COMPONENT_ABS_DIR = os.path.dirname(os.path.abspath(__file__))
 
-CONFIG_SCHEMA = cv.empty_config_schema(DOMAIN)
+# Legacy hub-level YAML keys that older SmartIR versions accepted but this fork
+# no longer uses (updater removed 2026-05-17). Quietly tolerate them and warn
+# once on startup so users with stale `configuration.yaml` don't get a HA
+# validation error.
+_LEGACY_HUB_KEYS = ("check_updates", "update_branch")
+
+CONFIG_SCHEMA = vol.Schema(
+    {
+        vol.Optional(DOMAIN): vol.Schema({}, extra=vol.ALLOW_EXTRA),
+    },
+    extra=vol.ALLOW_EXTRA,
+)
 
 
 async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
-    """No-op YAML setup (only the empty `smartir:` block is accepted)."""
+    """Hub-level YAML setup.
+
+    Accepts `smartir:` as an empty mapping for backward compatibility. Any
+    legacy options (check_updates / update_branch) are silently ignored with a
+    deprecation warning — updates are now handled by HACS.
+    """
+    hub_conf = config.get(DOMAIN) or {}
+    stale = [k for k in _LEGACY_HUB_KEYS if k in hub_conf]
+    if stale:
+        _LOGGER.warning(
+            "SmartIR no longer reads %s from the `smartir:` YAML block; "
+            "updates are managed by HACS. Remove these keys from configuration.yaml.",
+            ", ".join(stale),
+        )
     return True
 
 

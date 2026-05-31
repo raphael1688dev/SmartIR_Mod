@@ -1,0 +1,57 @@
+name: Lint
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install ruff
+        run: pip install ruff
+
+      - name: Ruff check
+        run: ruff check custom_components/smartir
+
+      - name: Python compile check
+        run: |
+          python -m py_compile $(find custom_components/smartir -name '*.py')
+
+      - name: Validate JSON files
+        run: |
+          python <<'PY'
+          import json, sys
+          files = [
+              "custom_components/smartir/manifest.json",
+              "custom_components/smartir/strings.json",
+              "custom_components/smartir/translations/zh-Hant.json",
+              "hacs.json",
+          ]
+          for f in files:
+              with open(f) as fh:
+                  json.load(fh)
+              print(f"OK: {f}")
+          PY
+
+      - name: Validate manifest required fields
+        run: |
+          python <<'PY'
+          import json
+          with open("custom_components/smartir/manifest.json") as f:
+              m = json.load(f)
+          required = ["domain", "name", "documentation", "codeowners",
+                      "integration_type", "iot_class", "version"]
+          missing = [k for k in required if k not in m]
+          assert not missing, f"manifest.json missing required fields: {missing}"
+          print("manifest.json required fields present")
+          PY

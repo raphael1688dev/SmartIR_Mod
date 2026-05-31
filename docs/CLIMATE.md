@@ -6,6 +6,8 @@ For this platform to work, we need a .json file containing all the necessary IR 
 Find your device's brand code [here](CLIMATE.md#available-codes-for-climate-devices) and add the number in the `device_code` field. If your device is not working, you will need to learn your own codes and place the Json file in `smartir/codes/climate` subfolders. ~~[Keite Trần](https://github.com/keitetran/BroadlinkIRTools) developed [an amazing web-based app](https://keitetran.github.io/BroadlinkIRTools/) for this job.~~
 _Please note that the device_code field only accepts positive numbers. The .json extension is not required._
 
+> **SmartIR(Mod) note** — For new setups, prefer the **Config Flow UI** (Settings → Devices & Services → + Add Integration → SmartIR(Mod) → Climate). YAML below still works and auto-imports to a Config Entry on first run; remove the YAML block once the entity is confirmed. Sensor / delay / restore_state options can be edited later via the integration card's ⚙️ Options. For opt-in multi-HA state sync via MQTT, see [root README](../README.md#multi-ha-state-sync-optional).
+
 ## Configuration variables:
 | Name | Type | Default | Description |
 | ---- | :--: | :-----: | ----------- |

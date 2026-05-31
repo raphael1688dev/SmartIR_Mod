@@ -5,6 +5,8 @@
 For this platform to work, we need a .json file containing all the necessary IR commands.
 Find your device's brand code [here](MEDIA_PLAYER.md#available-codes-for-tv-devices) and add the number in the `device_code` field. The component will download it to the correct folder. If your device is not working, you will need to learn your own codes and place the .json file in `smartir/codes/media_player/` subfolders. Please note that the `device_code` field only accepts positive numbers. The .json extension is not required.
 
+> **SmartIR(Mod) note** — For new setups, prefer the **Config Flow UI** (Settings → Devices & Services → + Add Integration → SmartIR(Mod) → Media Player). YAML below still works and auto-imports to a Config Entry on first run; remove the YAML block once the entity is confirmed. Sensor / device_class / delay options can be edited later via the integration card's ⚙️ Options. For opt-in multi-HA state sync via MQTT, see [root README](../README.md#multi-ha-state-sync-optional).
+
 ## Configuration variables:
 **name** (Optional): The name of the device<br />
 **unique_id** (Optional): An ID that uniquely identifies this device. If two devices have the same unique ID, Home Assistant will raise an exception.<br />

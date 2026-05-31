@@ -32,3 +32,12 @@ CONF_INTENT_TOPIC_BASE = "intent_topic_base"
 CONF_INTENT_SOURCE_ID = "intent_source_id"
 CONF_INTENT_ID = "intent_id"
 DEFAULT_INTENT_TOPIC_BASE = "smartir/intent"
+
+# On-demand device JSON download template. {platform} is the entity platform
+# folder name (climate / media_player / fan / light); {device_code} is the
+# numeric code. Points to the fork's main branch — DO NOT change to upstream
+# smartHomeHub/SmartIR (controller types differ; see CLAUDE.md).
+CODES_SOURCE_URL = (
+    "https://raw.githubusercontent.com/raphael1688dev/SmartIR_Mod/main/"
+    "codes/{platform}/{device_code}.json"
+)

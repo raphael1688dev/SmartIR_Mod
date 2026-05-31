@@ -25,6 +25,7 @@ from homeassistant.helpers.typing import ConfigType, DiscoveryInfoType
 
 from . import COMPONENT_ABS_DIR, Helper
 from .const import (
+    CODES_SOURCE_URL,
     CONF_CONTROLLER_DATA,
     CONF_DELAY,
     CONF_DEVICE_CLASS,
@@ -106,9 +107,8 @@ async def async_setup_entry(
             "download it from the GitHub repo."
         )
         try:
-            codes_source = (
-                f"https://raw.githubusercontent.com/raphael1688dev/SmartIR_Mod/main/"
-                f"codes/media_player/{device_code}.json"
+            codes_source = CODES_SOURCE_URL.format(
+                platform=Platform.MEDIA_PLAYER.value, device_code=device_code
             )
             session = async_get_clientsession(hass)
             await Helper.downloader(session, codes_source, device_json_path)

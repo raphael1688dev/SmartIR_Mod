@@ -28,6 +28,7 @@ from homeassistant.util.percentage import (
 
 from . import COMPONENT_ABS_DIR, Helper
 from .const import (
+    CODES_SOURCE_URL,
     CONF_CONTROLLER_DATA,
     CONF_DELAY,
     CONF_DEVICE_CODE,
@@ -106,9 +107,8 @@ async def async_setup_entry(
             "download it from the GitHub repo."
         )
         try:
-            codes_source = (
-                f"https://raw.githubusercontent.com/raphael1688dev/SmartIR_Mod/main/"
-                f"codes/fan/{device_code}.json"
+            codes_source = CODES_SOURCE_URL.format(
+                platform=Platform.FAN.value, device_code=device_code
             )
             session = async_get_clientsession(hass)
             await Helper.downloader(session, codes_source, device_json_path)
@@ -359,7 +359,11 @@ class SmartIRFan(SmartIRIntentMixin, FanEntity, RestoreEntity):
 
         if new_state.state == STATE_ON and self._speed == SPEED_OFF:
             self._on_by_remote = True
-            self._speed = None
+            # Restore last known on speed, or the first speed in the list if
+            # none was recorded. Never leave `_speed` as None — downstream
+            # `percentage`, `state`, and `send_command` all assume it's either
+            # SPEED_OFF or a member of `_speed_list`.
+            self._speed = self._last_on_speed or self._speed_list[0]
             self.async_write_ha_state()
 
         elif new_state.state == STATE_OFF and self._speed != SPEED_OFF:

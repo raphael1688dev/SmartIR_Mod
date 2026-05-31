@@ -32,6 +32,7 @@ from homeassistant.helpers.typing import ConfigType, DiscoveryInfoType
 
 from . import COMPONENT_ABS_DIR, Helper
 from .const import (
+    CODES_SOURCE_URL,
     CONF_CONTROLLER_DATA,
     CONF_DELAY,
     CONF_DEVICE_CODE,
@@ -118,9 +119,8 @@ async def async_setup_entry(
             "will try to download it from the Github repo."
         )
         try:
-            codes_source = (
-                f"https://raw.githubusercontent.com/raphael1688dev/SmartIR_Mod/main/"
-                f"codes/light/{device_code}.json"
+            codes_source = CODES_SOURCE_URL.format(
+                platform=Platform.LIGHT.value, device_code=device_code
             )
             session = async_get_clientsession(hass)
             await Helper.downloader(session, codes_source, device_json_path)
@@ -157,6 +157,43 @@ def closest_match(value, options):
         prev_val = entry
 
     return len(options) - 1
+
+
+def _stepwise_command(
+    current_value,
+    target_value,
+    levels: list,
+    cmd_increase: str,
+    cmd_decrease: str,
+):
+    """Compute the IR step command + repeat count for an up/down-style control.
+
+    Returns (cmd, steps, new_value) or (None, 0, current_value) if no change.
+
+    The "edge boost" — when the target is the first or last level, send
+    `len(levels)` steps instead of the actual delta — exists so the device
+    saturates at min/max even when our recorded current_value drifted out of
+    sync with the real device. Replicates upstream's historical fan-out.
+    """
+    if not levels:
+        return None, 0, current_value
+
+    old_idx = closest_match(current_value, levels)
+    new_idx = closest_match(target_value, levels)
+    delta = new_idx - old_idx
+    if delta == 0:
+        return None, 0, current_value
+
+    if delta < 0:
+        cmd, steps = cmd_decrease, abs(delta)
+    else:
+        cmd, steps = cmd_increase, delta
+
+    # Edge boost: ensure full saturation at min/max.
+    if new_idx in (0, len(levels) - 1):
+        steps = len(levels)
+
+    return cmd, steps, levels[new_idx]
 
 
 class SmartIRLight(SmartIRIntentMixin, LightEntity, RestoreEntity):
@@ -304,26 +341,20 @@ class SmartIRLight(SmartIRIntentMixin, LightEntity, RestoreEntity):
             await self.send_command(CMD_POWER_ON)
 
         if ATTR_COLOR_TEMP_KELVIN in params and ColorMode.COLOR_TEMP == self._support_color_mode:
-            target = params.get(ATTR_COLOR_TEMP_KELVIN)
-            old_color_temp = closest_match(self._colortemp, self._colortemps)
-            new_color_temp = closest_match(target, self._colortemps)
-            _LOGGER.debug(
-                "Changing color temp from %sK (step %s) to %sK (step %s)",
-                self._colortemp, old_color_temp, target, new_color_temp
+            cmd, steps, new_colortemp = _stepwise_command(
+                self._colortemp,
+                params.get(ATTR_COLOR_TEMP_KELVIN),
+                self._colortemps,
+                cmd_increase=CMD_COLORMODE_COLDER,
+                cmd_decrease=CMD_COLORMODE_WARMER,
             )
-
-            steps = new_color_temp - old_color_temp
-            did_something = True
-            if steps < 0:
-                cmd = CMD_COLORMODE_WARMER
-                steps = abs(steps)
-            else:
-                cmd = CMD_COLORMODE_COLDER
-
-            if steps > 0 and cmd:
-                if new_color_temp == len(self._colortemps) - 1 or new_color_temp == 0:
-                    steps = len(self._colortemps)
-                self._colortemp = self._colortemps[new_color_temp]
+            if cmd is not None:
+                _LOGGER.debug(
+                    "Changing color temp from %sK to %sK via %s × %s",
+                    self._colortemp, new_colortemp, cmd, steps,
+                )
+                self._colortemp = new_colortemp
+                did_something = True
                 await self.send_command(cmd, steps)
 
         if ATTR_BRIGHTNESS in params and self._support_brightness:
@@ -334,26 +365,20 @@ class SmartIRLight(SmartIRIntentMixin, LightEntity, RestoreEntity):
                 await self.send_command(CMD_NIGHTLIGHT)
 
             elif self._brightnesses:
-                target = params.get(ATTR_BRIGHTNESS)
-                old_brightness = closest_match(self._brightness, self._brightnesses)
-                new_brightness = closest_match(target, self._brightnesses)
-                did_something = True
-                _LOGGER.debug(
-                    "Changing brightness from %s (step %s) to %s (step %s)",
-                    self._brightness, old_brightness, target, new_brightness
+                cmd, steps, new_brightness = _stepwise_command(
+                    self._brightness,
+                    params.get(ATTR_BRIGHTNESS),
+                    self._brightnesses,
+                    cmd_increase=CMD_BRIGHTNESS_INCREASE,
+                    cmd_decrease=CMD_BRIGHTNESS_DECREASE,
                 )
-
-                steps = new_brightness - old_brightness
-                if steps < 0:
-                    cmd = CMD_BRIGHTNESS_DECREASE
-                    steps = abs(steps)
-                else:
-                    cmd = CMD_BRIGHTNESS_INCREASE
-
-                if steps > 0 and cmd:
-                    if new_brightness == len(self._brightnesses) - 1 or new_brightness == 0:
-                        steps = len(self._brightnesses)
-                    self._brightness = self._brightnesses[new_brightness]
+                if cmd is not None:
+                    _LOGGER.debug(
+                        "Changing brightness from %s to %s via %s × %s",
+                        self._brightness, new_brightness, cmd, steps,
+                    )
+                    self._brightness = new_brightness
+                    did_something = True
                     await self.send_command(cmd, steps)
 
         if not did_something and not self._on_by_remote:

@@ -1,0 +1,19 @@
+# Minimal ruff config for SmartIR(Mod) — catches real errors, not style nitpicks.
+# Expand later if/when test suite is added (D13).
+
+target-version = "py313"
+line-length = 100
+
+[lint]
+# Pyflakes (F): unused imports / undefined names
+# pycodestyle errors (E) but not warnings (W)
+# Import sort (I) skipped — inherited code uses a different convention; flip on
+# later if/when we run a one-shot `ruff check --fix --select I` pass.
+select = ["F", "E"]
+ignore = [
+    "E501",   # line-too-long — IR base64 strings + URLs make this noisy
+    "E731",   # lambda assignment (used sparingly)
+]
+
+[lint.per-file-ignores]
+"custom_components/smartir/__init__.py" = ["F401"]  # Helper re-exports
