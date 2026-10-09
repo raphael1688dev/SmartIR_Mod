@@ -139,6 +139,8 @@ async def async_setup_entry(
 
 
 class SmartIRClimate(SmartIRIntentMixin, ClimateEntity, RestoreEntity):
+    _attr_should_poll = False
+
     def __init__(self, hass, entry: ConfigEntry, config: dict[str, Any], device_data):
         _LOGGER.debug(
             "SmartIRClimate init started for device %s. Supported models: %s",
@@ -164,7 +166,7 @@ class SmartIRClimate(SmartIRIntentMixin, ClimateEntity, RestoreEntity):
         self._max_temperature = device_data['maxTemperature']
         self._precision = device_data['precision']
 
-        valid_hvac_modes = [x for x in device_data['operationModes'] if x in HVAC_MODES]
+        valid_hvac_modes = [HVACMode(x) for x in device_data['operationModes'] if x in HVAC_MODES]
         self._operation_modes = [HVACMode.OFF] + valid_hvac_modes
         self._fan_modes = device_data['fanModes']
         self._swing_modes = device_data.get('swingModes')
@@ -216,7 +218,7 @@ class SmartIRClimate(SmartIRIntentMixin, ClimateEntity, RestoreEntity):
 
         if last_state is not None:
             if last_state.state in self._operation_modes:
-                self._hvac_mode = last_state.state
+                self._hvac_mode = HVACMode(last_state.state)
 
             restored_fan_mode = last_state.attributes.get('fan_mode')
             if restored_fan_mode in self._fan_modes:
@@ -230,8 +232,9 @@ class SmartIRClimate(SmartIRIntentMixin, ClimateEntity, RestoreEntity):
             if isinstance(restored_temp, (int, float)) and self._min_temperature <= restored_temp <= self._max_temperature:
                 self._target_temperature = restored_temp
 
-            if 'last_on_operation' in last_state.attributes:
-                self._last_on_operation = last_state.attributes['last_on_operation']
+            restored_last_on = last_state.attributes.get('last_on_operation')
+            if restored_last_on in self._operation_modes and restored_last_on != HVACMode.OFF:
+                self._last_on_operation = HVACMode(restored_last_on)
 
         if self._temperature_sensor:
             async_track_state_change_event(
@@ -262,9 +265,6 @@ class SmartIRClimate(SmartIRIntentMixin, ClimateEntity, RestoreEntity):
 
     @property
     def name(self): return self._name
-
-    @property
-    def state(self): return self._hvac_mode
 
     @property
     def temperature_unit(self): return self._unit
@@ -420,7 +420,7 @@ class SmartIRClimate(SmartIRIntentMixin, ClimateEntity, RestoreEntity):
         """Apply state from another HA's intent. Validate per CLAUDE.md rules."""
         hvac_mode = payload.get("hvac_mode")
         if hvac_mode in self._operation_modes:
-            self._hvac_mode = hvac_mode
+            self._hvac_mode = HVACMode(hvac_mode)
 
         fan_mode = payload.get("fan_mode")
         if fan_mode in self._fan_modes:
@@ -438,7 +438,7 @@ class SmartIRClimate(SmartIRIntentMixin, ClimateEntity, RestoreEntity):
             self._target_temperature = temperature
 
         if hvac_mode in self._operation_modes and hvac_mode != HVACMode.OFF:
-            self._last_on_operation = hvac_mode
+            self._last_on_operation = HVACMode(hvac_mode)
 
     async def _async_temp_sensor_changed(self, event: Event[EventStateChangedData]) -> None:
         """Handle temperature sensor changes."""

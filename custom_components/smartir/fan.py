@@ -131,6 +131,8 @@ async def async_setup_entry(
 
 
 class SmartIRFan(SmartIRIntentMixin, FanEntity, RestoreEntity):
+    _attr_should_poll = False
+
     def __init__(self, hass, entry: ConfigEntry, config: dict[str, Any], device_data):
         self.hass = hass
         self._entry = entry
@@ -220,10 +222,9 @@ class SmartIRFan(SmartIRIntentMixin, FanEntity, RestoreEntity):
     def name(self): return self._name
 
     @property
-    def state(self):
-        if self._on_by_remote or self._speed != SPEED_OFF:
-            return STATE_ON
-        return SPEED_OFF
+    def is_on(self):
+        # ToggleEntity.state is @final and derives "on"/"off" from is_on.
+        return self._on_by_remote or self._speed != SPEED_OFF
 
     @property
     def percentage(self):
@@ -250,6 +251,7 @@ class SmartIRFan(SmartIRIntentMixin, FanEntity, RestoreEntity):
     @property
     def extra_state_attributes(self):
         return {
+            'speed': self._speed,
             'last_on_speed': self._last_on_speed,
             'device_code': self._device_code,
             'manufacturer': self._manufacturer,

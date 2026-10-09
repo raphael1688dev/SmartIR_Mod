@@ -209,14 +209,17 @@ class SmartIRConfigFlow(ConfigFlow, domain=DOMAIN):
             _LOGGER.error("YAML import missing 'platform' key: %s", data)
             return self.async_abort(reason="invalid_import")
 
-        data.setdefault(CONF_INTENT_SOURCE_ID, uuid.uuid4().hex)
         data[CONF_INTENT_ID] = compute_intent_id(
             data[CONF_PLATFORM], data[CONF_DEVICE_CODE], data[CONF_CONTROLLER_DATA]
         )
 
         await self.async_set_unique_id(_make_unique_id(data))
+        # Must not carry intent_source_id into `updates`: a fresh UUID here would
+        # overwrite the stored one and make HA reload the entry on every restart
+        # while YAML is still present. Existing entries get theirs via backfill.
         self._abort_if_unique_id_configured(updates=data)
 
+        data[CONF_INTENT_SOURCE_ID] = uuid.uuid4().hex
         _LOGGER.info(
             "Imported SmartIR %s '%s' from YAML. You can now remove this entry "
             "from configuration.yaml.",

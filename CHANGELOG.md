@@ -6,6 +6,34 @@ Versions use `YYYYMMDDrN` format set in `manifest.json`.
 
 ---
 
+## 20261009r0 — HA 2026.10 compliance review (2026-10-09)
+
+Reviewed against Home Assistant Core `2026.10.0` source. All changes remain compatible with the declared minimum HA `2026.5.0`.
+
+### Fixed — HA 2026.10 entity contract
+- **climate.py** — Removed override of `ClimateEntity.state`, which is `@final` in HA; the base implementation already returns `hvac_mode`. (R1)
+- **fan.py** — Replaced override of `@final` `ToggleEntity.state` with an `is_on` override (same on/off semantics). (R2)
+- **light.py** — `min_color_temp_kelvin` / `max_color_temp_kelvin` now always return an int (falls back to HA's `DEFAULT_MIN_KELVIN` / `DEFAULT_MAX_KELVIN`); HA 2026.10 declares `-> int` and reports `None` (`breaks_in_ha_version="2026.8"`). (R3)
+- **light.py** — `supported_color_modes` now returns a `set`, and a device with no color-temp / brightness commands falls back to `ColorMode.ONOFF` instead of `UNKNOWN`, which HA's `valid_supported_color_modes()` rejects on every state write. `COLOR_TEMP` is only enabled when the device JSON provides a `colorTemperature` list. (R4)
+
+### Fixed — found during review
+- **config_flow.py** — YAML `async_step_import` no longer injects a fresh `intent_source_id` into `_abort_if_unique_id_configured(updates=...)`. Previously YAML users got a new source_id **and an entry reload on every restart**. (R5)
+- **climate / fan / light** — Set `_attr_should_poll = False` (HA's default is `True`); these entities were polled every 30 s for no reason. (R6)
+- **fan.py** — Expose `speed` in state attributes so the existing restore logic can actually recover the speed after restart. (R7)
+- **climate.py** — Restored `hvac_mode` / `last_on_operation` and intent payloads are stored as `HVACMode`; `last_on_operation` is now validated before use (previously an invalid restored value could `KeyError` on the next turn-on). Device JSON `operationModes` are normalised to `HVACMode` at init.
+- **codes/** — Removed trailing commas that made 3 device JSONs unparseable: `climate/2680.json`, `light/1020.json`, `media_player/1440.json`. All 435 device JSONs now parse. (R8)
+
+### CI
+- **lint.yml / ruff.toml** — Python 3.13 → **3.14** (HA 2026.10 requires 3.14.2); ruff `target-version` → `py314`. (R9)
+- **lint.yml** — `actions/checkout` v4 → **v7**, `actions/setup-python` v5 → **v7** (both Node 24; removes the Node 20 deprecation warning).
+
+### Verified, no change needed
+- All HA symbols used by SmartIR exist in 2026.10.0.
+- `import voluptuous as vol` keeps working: since HA 2026.9 the name is aliased to Probatio, and every API we use is in Probatio's compatibility matrix.
+- Climate `native_*` temperature property names arrive in **2026.11**, not 2026.10 — intentionally not migrated yet.
+
+---
+
 ## 20260531r0 — Tech debt sweep (2026-05-31)
 
 ### Fixed

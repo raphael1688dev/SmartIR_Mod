@@ -11,6 +11,8 @@ import voluptuous as vol
 from homeassistant.components.light import (
     ATTR_BRIGHTNESS,
     ATTR_COLOR_TEMP_KELVIN,
+    DEFAULT_MAX_KELVIN,
+    DEFAULT_MIN_KELVIN,
     ColorMode,
     LightEntity,
     PLATFORM_SCHEMA as LIGHT_PLATFORM_SCHEMA,
@@ -197,6 +199,8 @@ def _stepwise_command(
 
 
 class SmartIRLight(SmartIRIntentMixin, LightEntity, RestoreEntity):
+    _attr_should_poll = False
+
     def __init__(self, hass, entry: ConfigEntry, config: dict[str, Any], device_data):
         self.hass = hass
         self._entry = entry
@@ -223,7 +227,11 @@ class SmartIRLight(SmartIRIntentMixin, LightEntity, RestoreEntity):
         self._on_by_remote = False
         self._support_color_mode = ColorMode.UNKNOWN
 
-        if CMD_COLORMODE_COLDER in self._commands and CMD_COLORMODE_WARMER in self._commands:
+        if (
+            CMD_COLORMODE_COLDER in self._commands
+            and CMD_COLORMODE_WARMER in self._commands
+            and self._colortemps
+        ):
             self._colortemp = self.max_color_temp_kelvin
             self._support_color_mode = ColorMode.COLOR_TEMP
 
@@ -237,11 +245,9 @@ class SmartIRLight(SmartIRIntentMixin, LightEntity, RestoreEntity):
         else:
             self._support_brightness = False
 
-        if (
-            CMD_POWER_OFF in self._commands
-            and CMD_POWER_ON in self._commands
-            and self._support_color_mode == ColorMode.UNKNOWN
-        ):
+        # HA rejects UNKNOWN in supported_color_modes (raises on every state
+        # write), so any device without color-temp / brightness falls back to ONOFF.
+        if self._support_color_mode == ColorMode.UNKNOWN:
             self._support_color_mode = ColorMode.ONOFF
 
         self._controller = get_controller(
@@ -295,7 +301,7 @@ class SmartIRLight(SmartIRIntentMixin, LightEntity, RestoreEntity):
     def name(self): return self._name
 
     @property
-    def supported_color_modes(self): return [self._support_color_mode]
+    def supported_color_modes(self): return {self._support_color_mode}
 
     @property
     def color_mode(self): return self._support_color_mode
@@ -304,16 +310,16 @@ class SmartIRLight(SmartIRIntentMixin, LightEntity, RestoreEntity):
     def color_temp_kelvin(self): return self._colortemp
 
     @property
-    def min_color_temp_kelvin(self):
+    def min_color_temp_kelvin(self) -> int:
         if self._colortemps:
             return self._colortemps[0]
-        return None
+        return DEFAULT_MIN_KELVIN
 
     @property
-    def max_color_temp_kelvin(self):
+    def max_color_temp_kelvin(self) -> int:
         if self._colortemps:
             return self._colortemps[-1]
-        return None
+        return DEFAULT_MAX_KELVIN
 
     @property
     def is_on(self):

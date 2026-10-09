@@ -1,7 +1,7 @@
 # Minimal ruff config for SmartIR(Mod) — catches real errors, not style nitpicks.
 # Expand later if/when test suite is added (D13).
 
-target-version = "py313"
+target-version = "py314"
 line-length = 100
 
 [lint]
