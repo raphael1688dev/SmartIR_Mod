@@ -11,7 +11,7 @@ Strict per design `design_multi_ha_intent_sync.md`:
 - Publish only after the IR send succeeds (do not optimistically pre-publish).
 - opt-in default OFF.
 - Subclasses must override `_apply_intent()`. Payload validation in
-  `_apply_intent` MUST follow CLAUDE.md "Entity 還原狀態" rules: never trust
+  `_apply_intent` MUST follow the same rules as restore-state: never trust
   the value, keep the prior valid value when validation fails.
 """
 from __future__ import annotations
@@ -155,7 +155,7 @@ class SmartIRIntentMixin:
     def _apply_intent(self, payload: dict[str, Any]) -> None:
         """Update internal state from intent payload.
 
-        Subclasses MUST validate each field per CLAUDE.md
-        'Entity 還原狀態' rules: ignore invalid values, keep prior state.
+        Subclasses MUST validate each field the same way restore-state does:
+        ignore invalid values, keep prior state.
         """
         raise NotImplementedError

@@ -266,6 +266,14 @@ class SmartIRClimate(SmartIRIntentMixin, ClimateEntity, RestoreEntity):
     @property
     def name(self): return self._name
 
+    # HA 2026.11 renamed temperature_unit / current_temperature / target_temperature
+    # to native_*. We provide both names: 2026.5–2026.10 read the old ones, and
+    # 2026.11+ uses the native one without warning when a class provides both
+    # (helpers/deprecation.py migrate_deprecated_entity_members). Drop the old
+    # names once the minimum HA version is >= 2026.11 (they are removed in 2027.11).
+    @property
+    def native_temperature_unit(self): return self._unit
+
     @property
     def temperature_unit(self): return self._unit
 
@@ -274,6 +282,9 @@ class SmartIRClimate(SmartIRIntentMixin, ClimateEntity, RestoreEntity):
 
     @property
     def max_temp(self): return self._max_temperature
+
+    @property
+    def native_target_temperature(self): return self._target_temperature
 
     @property
     def target_temperature(self): return self._target_temperature
@@ -301,6 +312,9 @@ class SmartIRClimate(SmartIRIntentMixin, ClimateEntity, RestoreEntity):
 
     @property
     def swing_mode(self): return self._current_swing_mode
+
+    @property
+    def native_current_temperature(self): return self._current_temperature
 
     @property
     def current_temperature(self): return self._current_temperature

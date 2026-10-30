@@ -34,6 +34,7 @@ jobs:
           files = [
               "custom_components/smartir/manifest.json",
               "custom_components/smartir/strings.json",
+              "custom_components/smartir/translations/en.json",
               "custom_components/smartir/translations/zh-Hant.json",
               "hacs.json",
           ]
@@ -41,6 +42,11 @@ jobs:
               with open(f) as fh:
                   json.load(fh)
               print(f"OK: {f}")
+          # HA never reads strings.json for custom integrations; en.json is what it loads.
+          with open("custom_components/smartir/strings.json") as a, open("custom_components/smartir/translations/en.json") as b:
+              if json.load(a) != json.load(b):
+                  sys.exit("translations/en.json is out of sync with strings.json")
+          print("OK: en.json matches strings.json")
           PY
 
       - name: Validate manifest required fields

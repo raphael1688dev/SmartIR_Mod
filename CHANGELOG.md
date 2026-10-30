@@ -6,6 +6,25 @@ Versions use `YYYYMMDDrN` format set in `manifest.json`.
 
 ---
 
+## 20261030r0 — HA 2026.11 climate native_* properties (2026-10-30)
+
+### Fixed
+- **climate.py** — HA 2026.11 logs `SmartIRClimate provides the deprecated temperature_unit / current_temperature / target_temperature ... this will stop working in Home Assistant 2027.11`. Added `native_temperature_unit`, `native_current_temperature` and `native_target_temperature`, and kept the old names next to them. When a class provides both, 2026.11+ uses the `native_*` one and does not warn (core `helpers/deprecation.py` `migrate_deprecated_entity_members`). 2026.5–2026.10 keep reading the old names, so the minimum HA version stays `2026.5.0`.
+- **translations/en.json** — Added (copy of `strings.json`). HA never reads `strings.json` for custom integrations, only `translations/<language>.json`, with English as the fallback (core `helpers/translation.py`). Until now only `zh-Hant.json` existed, so every other UI language showed no text in the setup and options forms.
+
+### Changed
+- **controller.py / intent_sync.py** — Code comments are now English only; removed references to a private notes file that is not part of the repo.
+- **README.md** — Compatibility now lists the checked HA versions; the fork-differences table covers the 2026.10 / 2026.11 fixes; links to this changelog; notes the English / Traditional Chinese UI; examples no longer use non-English text or a wrong manufacturer name.
+
+### CI
+- **lint.yml** — Validates `translations/en.json` and fails if it drifts from `strings.json`.
+
+### Verified
+- Smoke test that loads all 4 platforms against real `homeassistant` packages: **2026.11.0b1** (the 3 warnings reproduce on `20261009r0` and are gone after the fix), **2026.10.0** and **2026.5.0**. No warnings on any version.
+- Upstream `smartHomeHub/SmartIR` has no new commits since 2025-07-21 (latest release `1.18.1`); nothing to merge.
+
+---
+
 ## 20261009r0 — HA 2026.10 compliance review (2026-10-09)
 
 Reviewed against Home Assistant Core `2026.10.0` source. All changes remain compatible with the declared minimum HA `2026.5.0`.

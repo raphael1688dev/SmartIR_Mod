@@ -45,7 +45,7 @@ def get_controller(hass: HomeAssistant, controller: str, encoding: str, controll
 class AbstractController(ABC):
     """Representation of a controller."""
     
-    # 子類別需定義支援的編碼清單
+    # Subclasses must define the encodings they support
     SUPPORTED_ENCODINGS: set[str] = set()
 
     def __init__(self, hass: HomeAssistant, controller: str, encoding: str, controller_data: str, delay: float):
@@ -74,9 +74,9 @@ class BroadlinkController(AbstractController):
     SUPPORTED_ENCODINGS = {ENC_BASE64, ENC_HEX, ENC_PRONTO}
 
     def _convert_pronto_to_base64(self, command: str) -> str:
-        """
-        純 CPU 運算邏輯。
-        將繁重的轉換過程獨立出來，以便丟入背景 Thread 執行。
+        """Convert a Pronto code to Broadlink base64.
+
+        Pure CPU work, kept separate so it can run in an executor thread.
         """
         try:
             _command_clean = command.replace(' ', '')
@@ -102,7 +102,7 @@ class BroadlinkController(AbstractController):
                     raise ValueError("Error while converting Hex to Base64 encoding") from err
 
             elif self._encoding == ENC_PRONTO:
-                # 將 CPU 密集的轉換工作交給背景執行緒 (Executor) 處理，避免阻塞 HA 主事件迴圈
+                # CPU-heavy conversion runs in the executor so it does not block the HA event loop
                 _command = await self.hass.async_add_executor_job(
                     self._convert_pronto_to_base64, _command
                 )

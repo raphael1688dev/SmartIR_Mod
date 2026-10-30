@@ -12,18 +12,20 @@ A fork of [smartHomeHub/SmartIR](https://github.com/smartHomeHub/SmartIR) modern
 
 | Area | Upstream SmartIR | This fork (Mod) |
 |---|---|---|
-| HA compatibility | Older HA versions | **HA 2026.5+ only** |
+| HA compatibility | Older HA versions | **HA 2026.5+ only** (checked up to 2026.11) |
 | Setup | YAML platform setup | **Config Flow (UI) + YAML soft-import** |
 | Updates | Built-in self-updater | Removed — use HACS |
-| Bug fixes | — | `hass.components.*` removed, `async_add_executor_job` kwargs, `@callback`/`async def`, `Helper.downloader` signature, `swing_mode` restore validation, full restore-state hardening across all platforms |
+| Bug fixes | — | `hass.components.*` removed, `async_add_executor_job` kwargs, `@callback`/`async def`, `Helper.downloader` signature, `swing_mode` restore validation, full restore-state hardening across all platforms, HA 2026.10 entity contract (`@final` state, light color modes, no polling), HA 2026.11 climate `native_*` temperatures, 3 unparseable device JSONs |
 | Multi-HA support | Each HA's state drifts independently | **Optional MQTT intent topic** for cross-HA state sync (topic derived from physical device identity, not entity name) |
 | codes source | Downloads from `smartHomeHub/SmartIR` | Downloads from this fork (`raphael1688dev/SmartIR_Mod`) — different `supportedController` values for many device codes |
+
+See [CHANGELOG.md](CHANGELOG.md) for every change by version.
 
 ---
 
 ## Requirements
 
-- Home Assistant **2026.5.0+**
+- Home Assistant **2026.5.0+** (checked against 2026.5.0, 2026.10.0 and 2026.11.0b1)
 - HACS (recommended for installation/updates)
 - For the MQTT controller: HA MQTT integration set up and connected to your broker (e.g., Mosquitto)
 - For multi-HA intent sync: MQTT integration on each HA instance, sharing the same broker
@@ -62,6 +64,8 @@ Copy `custom_components/smartir/` into your Home Assistant `config/custom_compon
 4. Submit
 
 To edit settings later (sensors, delay, multi-HA sync): the integration card → ⚙️ **Options**.
+
+The setup and options forms are translated into English and Traditional Chinese.
 
 ### Via YAML (legacy)
 
@@ -114,12 +118,12 @@ The topic suffix is derived from the **physical device identity**, not the entit
 intent_id = f"{platform}_{device_code}_{slug(controller_data)}"
 ```
 
-Example for an MQTT-controlled Hitachi AC at `zigbee2mqtt_3F/0xb0c7defffe5f308e/set`:
+Example for climate device code 1090 on the MQTT topic `zigbee2mqtt_3F/0xb0c7defffe5f308e/set`:
 ```
 smartir/intent/climate_1090_zigbee2mqtt_3f_0xb0c7defffe5f308e_set
 ```
 
-This means **HA1 and HA2 produce the same intent topic for the same physical device** as long as they share `device_code` and `controller_data` (which they must, to control the same device). Entity names can legitimately differ across instances (e.g., "Master AC" vs "主臥冷氣") — only the physical identity matters.
+This means **HA1 and HA2 produce the same intent topic for the same physical device** as long as they share `device_code` and `controller_data` (which they must, to control the same device). Entity names can legitimately differ across instances (e.g., "Master AC" on one HA and "Bedroom AC" on the other) — only the physical identity matters.
 
 ### Enabling
 
@@ -142,7 +146,7 @@ Requires the HA MQTT integration to be configured and pointing at the same broke
 
 ## Per-platform documentation
 
-See the upstream docs for device-specific options and full device-code lists:
+Device-specific options and full device-code lists (inherited from upstream):
 - [Climate](docs/CLIMATE.md)
 - [Media Player](docs/MEDIA_PLAYER.md)
 - [Fan](docs/FAN.md)
