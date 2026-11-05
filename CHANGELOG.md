@@ -6,6 +6,27 @@ Versions use `YYYYMMDDrN` format set in `manifest.json`.
 
 ---
 
+## 20261105r0 — HA 2026.11.0 GA, upstream 1.18.2 codes (2026-11-05)
+
+### Fixed
+- **codes/climate/1541.json** — The Whirlpool ABM859/G code set was stored as `codes/climate/1541` (no `.json` extension) and had a trailing comma, so device code 1541 could never be loaded. Renamed, removed the trailing comma, and applied upstream's `precision` change (`1.0` → `1`). Upstream's own `1541.json` still has the trailing comma.
+
+### Changed
+- **climate / fan / light / media_player** — Opt in to HA 2026.11's in-place `entity_id` changes by defining `async_entity_id_changed`. Without it, HA removes and re-adds entities of custom classes that define `async_added_to_hass` / `async_will_remove_from_hass` on every `entity_id` rename, and that fallback is removed in HA 2027.11. Nothing in SmartIR is keyed on its own `entity_id`, so the hook only calls `super()`. Older HA versions never call it.
+
+### Added
+- **codes/climate** — Upstream 1.18.2 device codes: 3420 FlinQ, 3440 Winia, 3460 Danby, 3480 Hommer, 3500 Rinnai, 3520 Elco (all Broadlink). Listed in `docs/CLIMATE.md`.
+
+### CI
+- **lint.yml** — Validates every file under `codes/`: it must have a `.json` extension and parse.
+
+### Verified
+- Smoke test against real `homeassistant` packages **2026.11.0** (GA), **2026.10.0** and **2026.5.0**: all 4 platforms load with no warnings; on 2026.11.0 all 4 entity classes now rename in place.
+- HA 2026.11.0 removed `helpers.event.async_track_state_change` (SmartIR only uses `async_track_state_change_event`) and re-keyed restore state by entity registry ID (`RestoreEntity.async_get_last_state` is unaffected).
+- Upstream `smartHomeHub/SmartIR` 1.18.2's Python changes (removing the `async_track_state_change` import, minimum HA 2026.11.0) do not apply to this fork.
+
+---
+
 ## 20261030r0 — HA 2026.11 climate native_* properties (2026-10-30)
 
 ### Fixed

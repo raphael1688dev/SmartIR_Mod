@@ -49,6 +49,26 @@ jobs:
           print("OK: en.json matches strings.json")
           PY
 
+      - name: Validate device code files
+        run: |
+          python <<'PY'
+          import json, pathlib, sys
+          errors = []
+          files = [p for p in sorted(pathlib.Path("codes").rglob("*")) if p.is_file()]
+          for p in files:
+              # The integration only ever looks for <device_code>.json
+              if p.suffix != ".json":
+                  errors.append(f"{p}: missing .json extension")
+                  continue
+              try:
+                  json.loads(p.read_text(encoding="utf-8"))
+              except ValueError as err:
+                  errors.append(f"{p}: {err}")
+          if errors:
+              sys.exit("\n".join(errors))
+          print(f"OK: {len(files)} device code files")
+          PY
+
       - name: Validate manifest required fields
         run: |
           python <<'PY'

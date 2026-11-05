@@ -975,3 +975,33 @@ Contributing to your own code files is welcome. However, we do not accept incomp
 | Code                               | Supported Models | Controller |
 | ---------------------------------- | -----------------| ---------- |
 | [3380](../codes/climate/3380.json) | DualSplit | Broadlink  |
+
+### FlinQ
+| Code                               | Supported Models | Controller |
+| ---------------------------------- | ---------------- | ---------- |
+| [3420](../codes/climate/3420.json) | FQC8151          | Broadlink  |
+
+### Winia
+| Code                               | Supported Models       | Controller |
+| ---------------------------------- | ---------------------- | ---------- |
+| [3440](../codes/climate/3440.json) | WRW07CSW<br>WRW11CSW   | Broadlink  |
+
+### Danby
+| Code                               | Supported Models | Controller |
+| ---------------------------------- | ---------------- | ---------- |
+| [3460](../codes/climate/3460.json) | Unknown          | Broadlink  |
+
+### Hommer
+| Code                               | Supported Models       | Controller |
+| ---------------------------------- | ---------------------- | ---------- |
+| [3480](../codes/climate/3480.json) | AKIRA GAN/GAG-A128 VL  | Broadlink  |
+
+### Rinnai
+| Code                               | Supported Models                            | Controller |
+| ---------------------------------- | ------------------------------------------- | ---------- |
+| [3500](../codes/climate/3500.json) | Enduro 13<br>Dynamo 15<br>Avenger 25        | Broadlink  |
+
+### Elco
+| Code                               | Supported Models | Controller |
+| ---------------------------------- | ---------------- | ---------- |
+| [3520](../codes/climate/3520.json) | Classic          | Broadlink  |

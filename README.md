@@ -25,7 +25,7 @@ See [CHANGELOG.md](CHANGELOG.md) for every change by version.
 
 ## Requirements
 
-- Home Assistant **2026.5.0+** (checked against 2026.5.0, 2026.10.0 and 2026.11.0b1)
+- Home Assistant **2026.5.0+** (checked against 2026.5.0, 2026.10.0 and 2026.11.0)
 - HACS (recommended for installation/updates)
 - For the MQTT controller: HA MQTT integration set up and connected to your broker (e.g., Mosquitto)
 - For multi-HA intent sync: MQTT integration on each HA instance, sharing the same broker

@@ -263,6 +263,14 @@ class SmartIRClimate(SmartIRIntentMixin, ClimateEntity, RestoreEntity):
         self._intent_unsubscribe()
         await super().async_will_remove_from_hass()
 
+    @callback
+    def async_entity_id_changed(self, old_entity_id: str) -> None:
+        # HA 2026.11+ renames entities in place when this hook is defined on the
+        # class itself; without it HA removes and re-adds them (until 2027.11).
+        # Nothing here is keyed on our own entity_id: listeners track the sensor
+        # entities and MQTT uses intent_id. Never called before HA 2026.11.
+        super().async_entity_id_changed(old_entity_id)
+
     @property
     def name(self): return self._name
 
