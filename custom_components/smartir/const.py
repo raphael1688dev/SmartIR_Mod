@@ -36,7 +36,8 @@ DEFAULT_INTENT_TOPIC_BASE = "smartir/intent"
 # On-demand device JSON download template. {platform} is the entity platform
 # folder name (climate / media_player / fan / light); {device_code} is the
 # numeric code. Points to the fork's main branch — DO NOT change to upstream
-# smartHomeHub/SmartIR (controller types differ; see CLAUDE.md).
+# smartHomeHub/SmartIR: many device JSONs there use a different
+# supportedController, and loading them makes SmartIR use the wrong controller.
 CODES_SOURCE_URL = (
     "https://raw.githubusercontent.com/raphael1688dev/SmartIR_Mod/main/"
     "codes/{platform}/{device_code}.json"

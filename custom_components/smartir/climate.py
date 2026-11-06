@@ -439,7 +439,7 @@ class SmartIRClimate(SmartIRIntentMixin, ClimateEntity, RestoreEntity):
         }
 
     def _apply_intent(self, payload: dict[str, Any]) -> None:
-        """Apply state from another HA's intent. Validate per CLAUDE.md rules."""
+        """Apply state from another HA's intent; ignore any invalid field."""
         hvac_mode = payload.get("hvac_mode")
         if hvac_mode in self._operation_modes:
             self._hvac_mode = HVACMode(hvac_mode)

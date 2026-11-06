@@ -6,6 +6,28 @@ Versions use `YYYYMMDDrN` format set in `manifest.json`.
 
 ---
 
+## 20261106r0 — Upstream device code sync (2026-11-06)
+
+Synced device codes from upstream `smartHomeHub/SmartIR` master (`3dca407`, 2026-11-05; upstream has not tagged a release for these yet). No integration code changes from upstream.
+
+### Added
+- **70 device codes**: 59 climate, 5 fan, 3 light, 2 media player (4 of the climate codes are ESPHome, the rest Broadlink). Listed in `docs/`.
+
+### Changed
+- **25 existing device codes** updated to upstream's latest version, only where this fork's copy was identical to upstream's previous version: climate 1027, 1101, 1108, 1117, 1121, 1122, 1124, 1129, 1137, 1263, 1285, 1287, 1320, 1395, 1522, 1627, 1685, 1686, 2321, 2380, 3000, 3120; fan 1160; media player 1360; light 1020. Most only add supported models; 1121, 1686, 1395, 1627, 2321, 3000 and 3120 also change commands (2321, 3000 and 3120 now cover every mode / fan / temperature combination). Fork-specific codes (climate 1080, 1089, 1090) are untouched.
+- **docs/** — Applied upstream's updates to `CLIMATE.md`, `FAN.md`, `LIGHT.md` and `MEDIA_PLAYER.md`.
+- **const.py / climate.py** — Comments no longer refer to a private notes file that is not part of the repo.
+
+### Fixed
+- **codes/climate/7523.json** (Hisense DGR11R2, ESPHome) — 23 commands were JSON arrays missing their closing `]`, so the ESPHome controller rejected them. Closed the arrays; the content is otherwise unchanged from upstream. Not tested on a real device.
+
+### Verified
+- Every synced file builds an entity on real `homeassistant` **2026.11.0**, **2026.10.0** and **2026.5.0**, with no warnings.
+- New codes: every command decodes the way its controller sends it (Broadlink Base64 checked the way HA's Broadlink integration decodes it). `climate/2322.json` has a `$comment` note inside its command table, which is never sent.
+- Updated codes: none got worse. `climate/1117`, `1685` and `2380` still have missing combinations or undecodable commands that were already there before this sync.
+
+---
+
 ## 20261105r0 — HA 2026.11.0 GA, upstream 1.18.2 codes (2026-11-05)
 
 ### Fixed
