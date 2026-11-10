@@ -25,7 +25,7 @@ See [CHANGELOG.md](CHANGELOG.md) for every change by version.
 
 ## Requirements
 
-- Home Assistant **2026.5.0+** (checked against 2026.5.0, 2026.10.0 and 2026.11.0)
+- Home Assistant **2026.5.0+** (checked against 2026.5.0, 2026.10.0 and 2026.11.1)
 - HACS (recommended for installation/updates)
 - For the MQTT controller: HA MQTT integration set up and connected to your broker (e.g., Mosquitto)
 - For multi-HA intent sync: MQTT integration on each HA instance, sharing the same broker
@@ -108,7 +108,7 @@ Encoding (`commandsEncoding` in device JSON): `Raw`, `Base64`, `Hex`, or `Pronto
 
 When two or more HA instances share the same physical IR device (e.g., a vacation home + main home, or redundant HAs), they previously drifted into inconsistent state because IR is unidirectional and Z2M's IR blasters don't echo sent codes back.
 
-This fork adds an **opt-in MQTT "intent" topic**: after each successful IR command, the entity publishes its current state (retained) to `<topic_base>/<intent_id>`. Other HA instances subscribe and update their entity state — **without re-sending IR** (loop-prevented via per-entry UUID).
+This fork adds an **opt-in MQTT "intent" topic**: after each successful IR command, the entity publishes its current state (retained) to `<topic_base>/<intent_id>`. "Successful" means the controller accepted the command: the MQTT and LOOKin controllers report a failed send (and nothing is published), while Broadlink, Xiaomi and ESPHome commands are handed to their Home Assistant service without waiting for the result. Other HA instances subscribe and update their entity state — **without re-sending IR** (loop-prevented via per-entry UUID).
 
 ### Topic identity (`intent_id`)
 

@@ -237,24 +237,30 @@ class SmartIRClimate(SmartIRIntentMixin, ClimateEntity, RestoreEntity):
                 self._last_on_operation = HVACMode(restored_last_on)
 
         if self._temperature_sensor:
-            async_track_state_change_event(
-                self.hass, self._temperature_sensor, self._async_temp_sensor_changed
+            self.async_on_remove(
+                async_track_state_change_event(
+                    self.hass, self._temperature_sensor, self._async_temp_sensor_changed
+                )
             )
             temp_sensor_state = self.hass.states.get(self._temperature_sensor)
             if temp_sensor_state and temp_sensor_state.state != STATE_UNKNOWN:
                 self._async_update_temp(temp_sensor_state)
 
         if self._humidity_sensor:
-            async_track_state_change_event(
-                self.hass, self._humidity_sensor, self._async_humidity_sensor_changed
+            self.async_on_remove(
+                async_track_state_change_event(
+                    self.hass, self._humidity_sensor, self._async_humidity_sensor_changed
+                )
             )
             humidity_sensor_state = self.hass.states.get(self._humidity_sensor)
             if humidity_sensor_state and humidity_sensor_state.state != STATE_UNKNOWN:
                 self._async_update_humidity(humidity_sensor_state)
 
         if self._power_sensor:
-            async_track_state_change_event(
-                self.hass, self._power_sensor, self._async_power_sensor_changed
+            self.async_on_remove(
+                async_track_state_change_event(
+                    self.hass, self._power_sensor, self._async_power_sensor_changed
+                )
             )
 
         await self._intent_subscribe()
@@ -344,6 +350,32 @@ class SmartIRClimate(SmartIRIntentMixin, ClimateEntity, RestoreEntity):
             'commands_encoding': self._commands_encoding,
         }
 
+    def _state_snapshot(self) -> tuple:
+        return (
+            self._hvac_mode,
+            self._last_on_operation,
+            self._current_fan_mode,
+            self._current_swing_mode,
+            self._target_temperature,
+        )
+
+    async def _send_or_revert(self, snapshot: tuple) -> None:
+        """Send the current state; put the previous state back if it was not sent."""
+        if not await self.send_command():
+            (
+                self._hvac_mode,
+                self._last_on_operation,
+                self._current_fan_mode,
+                self._current_swing_mode,
+                self._target_temperature,
+            ) = snapshot
+        self.async_write_ha_state()
+
+    def _set_mode(self, hvac_mode) -> None:
+        self._hvac_mode = HVACMode(hvac_mode)
+        if self._hvac_mode != HVACMode.OFF:
+            self._last_on_operation = self._hvac_mode
+
     async def async_set_temperature(self, **kwargs):
         """Set new target temperatures."""
         hvac_mode = kwargs.get(ATTR_HVAC_MODE)
@@ -356,39 +388,40 @@ class SmartIRClimate(SmartIRIntentMixin, ClimateEntity, RestoreEntity):
             _LOGGER.warning("The temperature value %s is out of min/max range", temperature)
             return
 
+        snapshot = self._state_snapshot()
         self._target_temperature = round(temperature) if self._precision == PRECISION_WHOLE else round(temperature, 1)
 
         if hvac_mode:
-            await self.async_set_hvac_mode(hvac_mode)
-            return
+            self._set_mode(hvac_mode)
 
-        if self._hvac_mode != HVACMode.OFF:
-            await self.send_command()
-
-        self.async_write_ha_state()
+        if self._hvac_mode != HVACMode.OFF or hvac_mode:
+            await self._send_or_revert(snapshot)
+        else:
+            self.async_write_ha_state()
 
     async def async_set_hvac_mode(self, hvac_mode):
         """Set operation mode."""
-        self._hvac_mode = hvac_mode
-        if hvac_mode != HVACMode.OFF:
-            self._last_on_operation = hvac_mode
-
-        await self.send_command()
-        self.async_write_ha_state()
+        snapshot = self._state_snapshot()
+        self._set_mode(hvac_mode)
+        await self._send_or_revert(snapshot)
 
     async def async_set_fan_mode(self, fan_mode):
         """Set fan mode."""
+        snapshot = self._state_snapshot()
         self._current_fan_mode = fan_mode
         if self._hvac_mode != HVACMode.OFF:
-            await self.send_command()
-        self.async_write_ha_state()
+            await self._send_or_revert(snapshot)
+        else:
+            self.async_write_ha_state()
 
     async def async_set_swing_mode(self, swing_mode):
         """Set swing mode."""
+        snapshot = self._state_snapshot()
         self._current_swing_mode = swing_mode
         if self._hvac_mode != HVACMode.OFF:
-            await self.send_command()
-        self.async_write_ha_state()
+            await self._send_or_revert(snapshot)
+        else:
+            self.async_write_ha_state()
 
     async def async_turn_off(self):
         """Turn off."""
@@ -401,7 +434,8 @@ class SmartIRClimate(SmartIRIntentMixin, ClimateEntity, RestoreEntity):
         )
         await self.async_set_hvac_mode(mode_to_set)
 
-    async def send_command(self):
+    async def send_command(self) -> bool:
+        """Send the IR command for the current state. Return False if it was not sent."""
         async with self._temp_lock:
             try:
                 self._on_by_remote = False
@@ -413,7 +447,7 @@ class SmartIRClimate(SmartIRIntentMixin, ClimateEntity, RestoreEntity):
                 if operation_mode == HVACMode.OFF:
                     await self._controller.send(self._commands['off'])
                     await self._intent_publish(self._build_intent_payload())
-                    return
+                    return True
 
                 if 'on' in self._commands:
                     await self._controller.send(self._commands['on'])
@@ -426,9 +460,11 @@ class SmartIRClimate(SmartIRIntentMixin, ClimateEntity, RestoreEntity):
 
                 await self._controller.send(cmd)
                 await self._intent_publish(self._build_intent_payload())
+                return True
 
             except Exception:
                 _LOGGER.exception("Failed to send command to the controller")
+                return False
 
     def _build_intent_payload(self) -> dict[str, Any]:
         return {

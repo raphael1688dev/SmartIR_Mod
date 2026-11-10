@@ -146,7 +146,9 @@ class MQTTController(AbstractController):
             'topic': self._controller_data,
             'payload': command,
         }
-        await self.hass.services.async_call('mqtt', 'publish', service_data)
+        # blocking=True so a failed publish (e.g. broker disconnected) raises
+        # here; callers must not treat the command as sent in that case.
+        await self.hass.services.async_call('mqtt', 'publish', service_data, blocking=True)
 
 
 class LookinController(AbstractController):
@@ -164,6 +166,8 @@ class LookinController(AbstractController):
                 response.raise_for_status()
         except aiohttp.ClientError as err:
             _LOGGER.error("Failed to send LOOKin command to %s: %s", url, err)
+            # Re-raise so callers know the command was not sent.
+            raise
 
 
 class ESPHomeController(AbstractController):

@@ -238,15 +238,22 @@ class SmartIROptionsFlow(OptionsFlowWithReload):
     """Edit tweakable fields after the entry is created."""
 
     async def async_step_init(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
-        if user_input is not None:
-            return self.async_create_entry(data=_normalize_user_input(dict(user_input)))
-
         platform = self.config_entry.data[CONF_PLATFORM]
+        if user_input is not None:
+            data = _normalize_user_input(dict(user_input))
+            # A cleared entity field is simply missing from user_input. Store it
+            # as None, otherwise the value in entry.data would win again when
+            # the platform merges {**entry.data, **entry.options}.
+            for key in _clearable_fields(platform):
+                data.setdefault(key, None)
+            return self.async_create_entry(data=data)
+
         schema = _options_schema_for(platform)
+        current = {**self.config_entry.data, **self.config_entry.options}
         return self.async_show_form(
             step_id="init",
             data_schema=self.add_suggested_values_to_schema(
-                schema, {**self.config_entry.data, **self.config_entry.options}
+                schema, {k: v for k, v in current.items() if v is not None}
             ),
         )
 
@@ -257,6 +264,13 @@ _INTENT_FIELDS = {
         CONF_INTENT_TOPIC_BASE, default=DEFAULT_INTENT_TOPIC_BASE
     ): selector.TextSelector(),
 }
+
+
+def _clearable_fields(platform: str) -> tuple[str, ...]:
+    """Optional entity fields of the options form that the user may empty."""
+    if platform == Platform.CLIMATE.value:
+        return (CONF_TEMPERATURE_SENSOR, CONF_HUMIDITY_SENSOR, CONF_POWER_SENSOR)
+    return (CONF_POWER_SENSOR,)
 
 
 def _options_schema_for(platform: str) -> vol.Schema:

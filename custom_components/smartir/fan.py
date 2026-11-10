@@ -208,8 +208,10 @@ class SmartIRFan(SmartIRIntentMixin, FanEntity, RestoreEntity):
                 self._last_on_speed = restored_last_on_speed
 
         if self._power_sensor:
-            async_track_state_change_event(
-                self.hass, self._power_sensor, self._async_power_sensor_changed
+            self.async_on_remove(
+                async_track_state_change_event(
+                    self.hass, self._power_sensor, self._async_power_sensor_changed
+                )
             )
 
         await self._intent_subscribe()

@@ -1,12 +1,13 @@
 """MQTT intent topic sync for SmartIR (multi-HA state propagation).
 
-Each entity publishes a JSON "intent" message to `<topic_base>/<unique_id>`
-(retain=true) after successful IR transmission, and subscribes to the same
-topic. Other HA instances with the same SmartIR entry receive the intent,
-update their entity state, and DO NOT re-send IR (loop-prevention via
-per-entry source_id UUID).
+Each entity publishes a JSON "intent" message to `<topic_base>/<intent_id>`
+(retain=true) after sending an IR command, and subscribes to the same topic.
+`intent_id` comes from `compute_intent_id()` (platform + device code +
+controller data), not from the entity's unique_id. Other HA instances that
+control the same device receive the intent, update their entity state, and
+DO NOT re-send IR (loop-prevention via per-entry source_id UUID).
 
-Strict per design `design_multi_ha_intent_sync.md`:
+Design rules:
 - source_id is a per-entry UUID generated at ConfigFlow creation.
 - Publish only after the IR send succeeds (do not optimistically pre-publish).
 - opt-in default OFF.

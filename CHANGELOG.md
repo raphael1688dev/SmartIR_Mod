@@ -6,6 +6,33 @@ Versions use `YYYYMMDDrN` format set in `manifest.json`.
 
 ---
 
+## 20261110r0 — Self-review fixes (2026-11-10)
+
+Found by reviewing the whole integration and reproducing each defect against real `homeassistant` packages.
+
+### Fixed
+- **climate / fan / light / media_player** — The state-change listeners for the temperature, humidity and power sensors were never released. Every entry reload (for example after saving the options form) left the old entity alive and still receiving sensor updates until Home Assistant restarted. They are now released with the entity.
+- **config_flow.py** — A sensor that was set when the entry was created could not be removed in the options form: clearing the field and saving kept using the old sensor. Cleared fields are now stored as empty.
+- **controller.py (MQTT)** — The MQTT controller now waits for `mqtt.publish` to finish, so a failed publish (for example a disconnected broker) is reported instead of being silently ignored.
+- **climate.py** — When a command cannot be sent (failed publish, or a mode / fan / temperature combination missing from the device code file), the entity keeps its previous state instead of showing the state that was never sent, and no multi-HA intent is published. `hvac_mode` passed as a plain string is stored as `HVACMode`.
+- **media_player.py** — Multi-HA intents for turn on / turn off carried the state from *before* the command (turning on published `off`, turning off published `on`). They now carry the new state.
+- **controller.py (LOOKin)** — A failed HTTP request was only logged, so the entity still published a multi-HA intent. The error is now raised.
+- **media_player.py** — A device code file without any known command made the entity raise `TypeError` (`supported_features` was a plain `0`).
+
+### Changed
+- **intent_sync.py** — Module docstring corrected: the topic uses `intent_id`, not the entity's unique_id; removed a reference to a private notes file.
+- **README.md** — Multi-HA section states which controllers report a failed send.
+
+### Not changed
+- Broadlink, Xiaomi and ESPHome commands are still handed to their Home Assistant service without waiting for the result (unchanged from upstream; not verifiable here without the hardware).
+- fan, light and media player still update their state before sending, as before.
+
+### Verified
+- Each defect above reproduced before the fix and gone after it, on `homeassistant` **2026.11.1**, **2026.10.0** and **2026.5.0**; all 4 platforms still load with no warnings.
+- Climate codes 1080, 1089 and 1090: all 135 mode / fan / swing / temperature combinations still send a command.
+
+---
+
 ## 20261106r0 — Upstream device code sync (2026-11-06)
 
 Synced device codes from upstream `smartHomeHub/SmartIR` master (`3dca407`, 2026-11-05; upstream has not tagged a release for these yet). No integration code changes from upstream.

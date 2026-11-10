@@ -153,7 +153,7 @@ class SmartIRMediaPlayer(SmartIRIntentMixin, MediaPlayerEntity, RestoreEntity):
         self._state = STATE_OFF
         self._sources_list = []
         self._source = None
-        self._support_flags = 0
+        self._support_flags = MediaPlayerEntityFeature(0)
 
         if self._commands.get('off'):
             self._support_flags |= MediaPlayerEntityFeature.TURN_OFF
@@ -205,8 +205,10 @@ class SmartIRMediaPlayer(SmartIRIntentMixin, MediaPlayerEntity, RestoreEntity):
             self._state = last_state.state
 
         if self._power_sensor:
-            async_track_state_change_event(
-                self.hass, self._power_sensor, self._async_power_sensor_changed
+            self.async_on_remove(
+                async_track_state_change_event(
+                    self.hass, self._power_sensor, self._async_power_sensor_changed
+                )
             )
 
         await self._intent_subscribe()
@@ -259,7 +261,7 @@ class SmartIRMediaPlayer(SmartIRIntentMixin, MediaPlayerEntity, RestoreEntity):
 
     async def async_turn_off(self):
         """Turn the media player off."""
-        await self.send_command(self._commands.get('off'))
+        await self.send_command(self._commands.get('off'), intent_state=STATE_OFF)
         if self._power_sensor is None:
             self._state = STATE_OFF
             self._source = None
@@ -267,7 +269,7 @@ class SmartIRMediaPlayer(SmartIRIntentMixin, MediaPlayerEntity, RestoreEntity):
 
     async def async_turn_on(self):
         """Turn the media player on."""
-        await self.send_command(self._commands.get('on'))
+        await self.send_command(self._commands.get('on'), intent_state=STATE_ON)
         if self._power_sensor is None:
             self._state = STATE_ON
             self.async_write_ha_state()
@@ -321,15 +323,25 @@ class SmartIRMediaPlayer(SmartIRIntentMixin, MediaPlayerEntity, RestoreEntity):
 
         self.async_write_ha_state()
 
-    async def send_command(self, command):
-        """Send command securely."""
+    async def send_command(self, command, intent_state=None):
+        """Send command securely.
+
+        `intent_state` is the power state this command leads to. Turn on/off
+        update `_state` only after sending (or leave it to the power sensor),
+        so the intent must carry the target state, not the current one.
+        """
         if not command:
             return
 
         async with self._temp_lock:
             try:
                 await self._controller.send(command)
-                await self._intent_publish(self._build_intent_payload())
+                payload = self._build_intent_payload()
+                if intent_state is not None:
+                    payload["state"] = intent_state
+                    if intent_state == STATE_OFF:
+                        payload["input_source"] = None
+                await self._intent_publish(payload)
             except Exception:
                 _LOGGER.exception("Failed to send command to the Media Player controller")
 
