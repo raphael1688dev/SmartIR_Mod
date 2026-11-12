@@ -162,6 +162,20 @@ New device JSONs go under `codes/<platform>/<device_code>.json` in this fork. Th
 
 ---
 
+## Development
+
+Tests live in `tests/` and run against a real Home Assistant package, so the same suite covers every supported HA version (CI runs 2026.5.0, 2026.10.0 and 2026.11.1):
+
+```bash
+python3.14 -m venv .venv
+.venv/bin/pip install homeassistant==2026.11.1 -r tests/requirements.txt
+.venv/bin/python -m pytest
+```
+
+They build an entity from every device code file and check behaviour that has regressed before: sensor listeners released on reload, failed sends not changing climate state or publishing multi-HA intents, intents carrying the new state, and options that can clear a sensor. They do not talk to real IR hardware or an MQTT broker.
+
+---
+
 ## Credits
 
 Based on [smartHomeHub/SmartIR](https://github.com/smartHomeHub/SmartIR) by `@smartHomeHub` and contributors. The IR code-handling logic (`pronto2lirc`, `lirc2broadlink`, controller protocols) and most device JSONs are derived from upstream.

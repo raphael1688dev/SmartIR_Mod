@@ -6,6 +6,20 @@ Versions use `YYYYMMDDrN` format set in `manifest.json`.
 
 ---
 
+## Unreleased — Test suite (2026-11-12)
+
+No integration code changes; no new release needed.
+
+### Added
+- **tests/** — pytest suite run against a real `homeassistant` package: every device code file builds an entity with valid HA attributes; climate attributes and the HA 2026.11 `native_*` names; in-place `entity_id` renames; light color modes; config flow translations; and regression tests for the 20261110r0 fixes (sensor listeners released, climate keeps its state when a send fails, media player intents carry the new state, MQTT and LOOKin controllers raise on failure, options can clear a sensor). Against the code before those fixes, 11 of the tests fail.
+- **README.md** — "Development" section: how to run the tests.
+
+### CI
+- **tests.yml** — Runs the suite on Home Assistant 2026.5.0, 2026.10.0 and 2026.11.1.
+- **lint.yml** — Ruff also checks `tests/`.
+
+---
+
 ## 20261110r0 — Self-review fixes (2026-11-10)
 
 Found by reviewing the whole integration and reproducing each defect against real `homeassistant` packages.

@@ -1,0 +1,30 @@
+name: Tests
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # Oldest supported (manifest minimum), previous stable, latest stable.
+        homeassistant: ["2026.5.0", "2026.10.0", "2026.11.1"]
+    name: HA ${{ matrix.homeassistant }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.14"
+
+      - name: Install Home Assistant and test dependencies
+        run: pip install "homeassistant==${{ matrix.homeassistant }}" -r tests/requirements.txt
+
+      - name: Run tests
+        run: python -m pytest -v
