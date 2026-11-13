@@ -13,6 +13,7 @@ import voluptuous as vol
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
+from homeassistant.exceptions import ConfigEntryError
 from homeassistant.helpers.typing import ConfigType
 
 from .const import (
@@ -62,12 +63,11 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     return True
 
 
-async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
+async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> None:
     """Set up a SmartIR device from a config entry."""
     platform = entry.data.get(CONF_PLATFORM)
     if platform not in {p.value for p in PLATFORMS}:
-        _LOGGER.error("Unknown platform in config entry %s: %r", entry.entry_id, platform)
-        return False
+        raise ConfigEntryError(f"Unknown platform in config entry: {platform!r}")
 
     # Backfill intent metadata for entries created before each feature existed.
     backfill: dict[str, str] = {}
@@ -89,15 +89,14 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         )
 
     await hass.config_entries.async_forward_entry_setups(entry, [platform])
-    return True
 
 
-async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
+async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> None:
     """Unload a SmartIR config entry."""
     platform = entry.data.get(CONF_PLATFORM)
     if platform not in {p.value for p in PLATFORMS}:
-        return True
-    return await hass.config_entries.async_unload_platforms(entry, [platform])
+        return
+    await hass.config_entries.async_unload_platforms_or_raise(entry, [platform])
 
 
 class Helper:

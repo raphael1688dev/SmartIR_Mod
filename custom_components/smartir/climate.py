@@ -271,25 +271,17 @@ class SmartIRClimate(SmartIRIntentMixin, ClimateEntity, RestoreEntity):
 
     @callback
     def async_entity_id_changed(self, old_entity_id: str) -> None:
-        # HA 2026.11+ renames entities in place when this hook is defined on the
-        # class itself; without it HA removes and re-adds them (until 2027.11).
+        # HA renames entities in place only when this hook is defined on the class
+        # itself; without it HA removes and re-adds them (until HA 2027.11).
         # Nothing here is keyed on our own entity_id: listeners track the sensor
-        # entities and MQTT uses intent_id. Never called before HA 2026.11.
+        # entities and MQTT uses intent_id.
         super().async_entity_id_changed(old_entity_id)
 
     @property
     def name(self): return self._name
 
-    # HA 2026.11 renamed temperature_unit / current_temperature / target_temperature
-    # to native_*. We provide both names: 2026.5–2026.10 read the old ones, and
-    # 2026.11+ uses the native one without warning when a class provides both
-    # (helpers/deprecation.py migrate_deprecated_entity_members). Drop the old
-    # names once the minimum HA version is >= 2026.11 (they are removed in 2027.11).
     @property
     def native_temperature_unit(self): return self._unit
-
-    @property
-    def temperature_unit(self): return self._unit
 
     @property
     def min_temp(self): return self._min_temperature
@@ -299,9 +291,6 @@ class SmartIRClimate(SmartIRIntentMixin, ClimateEntity, RestoreEntity):
 
     @property
     def native_target_temperature(self): return self._target_temperature
-
-    @property
-    def target_temperature(self): return self._target_temperature
 
     @property
     def target_temperature_step(self): return self._precision
@@ -329,9 +318,6 @@ class SmartIRClimate(SmartIRIntentMixin, ClimateEntity, RestoreEntity):
 
     @property
     def native_current_temperature(self): return self._current_temperature
-
-    @property
-    def current_temperature(self): return self._current_temperature
 
     @property
     def current_humidity(self): return self._current_humidity

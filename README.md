@@ -2,7 +2,7 @@
 
 [![Lint](https://github.com/raphael1688dev/SmartIR_Mod/actions/workflows/lint.yml/badge.svg)](https://github.com/raphael1688dev/SmartIR_Mod/actions/workflows/lint.yml)
 
-A fork of [smartHomeHub/SmartIR](https://github.com/smartHomeHub/SmartIR) modernised for Home Assistant **2026.5+**, with Config Flow setup, multi-HA state sync over MQTT, and several pre-existing bugs fixed.
+A fork of [smartHomeHub/SmartIR](https://github.com/smartHomeHub/SmartIR) modernised for Home Assistant **2026.11+**, with Config Flow setup, multi-HA state sync over MQTT, and several pre-existing bugs fixed.
 
 > ⚠️ This fork respects the upstream project's name guideline. It is published under the distinct name **SmartIR(Mod)**, not "SmartIR".
 
@@ -12,9 +12,9 @@ A fork of [smartHomeHub/SmartIR](https://github.com/smartHomeHub/SmartIR) modern
 
 | Area | Upstream SmartIR | This fork (Mod) |
 |---|---|---|
-| HA compatibility | Older HA versions | **HA 2026.5+ only** (checked up to 2026.11) |
+| HA compatibility | Older HA versions | **HA 2026.11+ only** |
 | Setup | YAML platform setup | **Config Flow (UI) + YAML soft-import** |
-| Updates | Built-in self-updater | Removed — use HACS |
+| Updates | Built-in self-updater | Removed — use Home Assistant's Marketplace (formerly HACS) |
 | Bug fixes | — | `hass.components.*` removed, `async_add_executor_job` kwargs, `@callback`/`async def`, `Helper.downloader` signature, `swing_mode` restore validation, full restore-state hardening across all platforms, HA 2026.10 entity contract (`@final` state, light color modes, no polling), HA 2026.11 climate `native_*` temperatures, 3 unparseable device JSONs |
 | Multi-HA support | Each HA's state drifts independently | **Optional MQTT intent topic** for cross-HA state sync (topic derived from physical device identity, not entity name) |
 | codes source | Downloads from `smartHomeHub/SmartIR` | Downloads from this fork (`raphael1688dev/SmartIR_Mod`) — different `supportedController` values for many device codes |
@@ -25,8 +25,8 @@ See [CHANGELOG.md](CHANGELOG.md) for every change by version.
 
 ## Requirements
 
-- Home Assistant **2026.5.0+** (checked against 2026.5.0, 2026.10.0 and 2026.11.1)
-- HACS (recommended for installation/updates)
+- Home Assistant **2026.11.0+** (checked against 2026.11.0 and 2026.11.1). The last release that runs on 2026.5–2026.10 is `20261110r0`.
+- The Marketplace built into Home Assistant (recommended for installation/updates)
 - For the MQTT controller: HA MQTT integration set up and connected to your broker (e.g., Mosquitto)
 - For multi-HA intent sync: MQTT integration on each HA instance, sharing the same broker
 
@@ -34,18 +34,21 @@ See [CHANGELOG.md](CHANGELOG.md) for every change by version.
 
 ## Installation
 
-### HACS (recommended)
+### Marketplace (recommended)
 
-1. HACS → Integrations → ⋮ menu → **Custom repositories**
-2. Add `https://github.com/raphael1688dev/SmartIR_Mod` with category **Integration**
-3. Install **SmartIR(Mod)**
-4. Restart Home Assistant
+Home Assistant 2026.11 replaced HACS with the built-in **Marketplace**. It reads the same `hacs.json` and GitHub releases, and an existing HACS installation (including its custom repositories) is taken over when Home Assistant is upgraded.
+
+1. In the Marketplace, add `https://github.com/raphael1688dev/SmartIR_Mod` as a custom repository with category **Integration**
+2. Install **SmartIR(Mod)**
+3. Restart Home Assistant
+
+Pre-releases only show up when the repository's **Pre-release** switch is on.
 
 ### Manual
 
 Copy `custom_components/smartir/` into your Home Assistant `config/custom_components/` directory, then restart HA.
 
-> Device-code JSON files are **not** bundled — they're downloaded on first use of each `device_code` from this fork's `codes/` directory. The `persistent_directory: codes` setting in [hacs.json](hacs.json) keeps downloaded files across updates.
+> Device-code JSON files are **not** bundled — they're downloaded on first use of each `device_code` from this fork's `codes/` directory. The `persistent_directory: codes` setting in [hacs.json](hacs.json) keeps downloaded files across Marketplace updates.
 
 ---
 
@@ -164,7 +167,7 @@ New device JSONs go under `codes/<platform>/<device_code>.json` in this fork. Th
 
 ## Development
 
-Tests live in `tests/` and run against a real Home Assistant package, so the same suite covers every supported HA version (CI runs 2026.5.0, 2026.10.0 and 2026.11.1):
+Tests live in `tests/` and run against a real Home Assistant package, so the same suite covers every supported HA version (CI runs the minimum, 2026.11.0, and the latest, 2026.11.1):
 
 ```bash
 python3.14 -m venv .venv

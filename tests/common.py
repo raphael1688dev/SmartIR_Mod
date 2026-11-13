@@ -51,9 +51,3 @@ def capture_intents(entity):
 
     entity._intent_publish = _publish
     return published
-
-
-def ha_version():
-    import homeassistant.const as const
-
-    return const.MAJOR_VERSION, const.MINOR_VERSION

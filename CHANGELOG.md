@@ -6,16 +6,30 @@ Versions use `YYYYMMDDrN` format set in `manifest.json`.
 
 ---
 
-## Unreleased — Test suite (2026-11-12)
+## 20261113r0 — Minimum Home Assistant 2026.11 (2026-11-13)
 
-No integration code changes; no new release needed.
+**Breaking:** requires Home Assistant **2026.11.0** or newer. `20261110r0` is the last release for 2026.5–2026.10; the Marketplace / HACS will not offer this one on older versions (`hacs.json` and `manifest.json` declare the new minimum).
 
-### Added
+### Changed
+- **manifest.json / hacs.json** — Minimum Home Assistant `2026.5.0` → `2026.11.0`.
+- **climate.py** — Only the `native_temperature_unit` / `native_current_temperature` / `native_target_temperature` properties remain; the pre-2026.11 names (removed by Home Assistant in 2027.11) are gone.
+- **__init__.py** — `async_setup_entry` / `async_unload_entry` follow the Home Assistant 2026.11 convention: they return `None`, setup raises `ConfigEntryError` for an unknown platform, and unload uses `async_unload_platforms_or_raise`. Home Assistant 2026.5–2026.10 required a boolean, which is why this waited for the new minimum.
+- **climate / fan / light / media_player** — `async_entity_id_changed` comments no longer mention older versions.
+- **README.md** — Installation through the Marketplace that replaced HACS in Home Assistant 2026.11 (same `hacs.json` and releases; existing HACS installs are taken over).
+
+### Tests / CI
+- **tests.yml** — Runs on Home Assistant 2026.11.0 (minimum) and 2026.11.1 (latest) instead of 2026.5.0 / 2026.10.0 / 2026.11.1.
+- **tests/test_setup.py** — Setup returns `None` and forwards to the platform, unknown platforms raise `ConfigEntryError`, unload returns `None`, and the Home Assistant APIs this minimum relies on exist. Version skips removed from the other tests.
+
+### Verified
+- 30 tests pass on Home Assistant 2026.11.0 and 2026.11.1; run against the `20261110r0` code, the 4 tests for the new behaviour fail.
+
+### Also in this release (test suite, previously unreleased)
 - **tests/** — pytest suite run against a real `homeassistant` package: every device code file builds an entity with valid HA attributes; climate attributes and the HA 2026.11 `native_*` names; in-place `entity_id` renames; light color modes; config flow translations; and regression tests for the 20261110r0 fixes (sensor listeners released, climate keeps its state when a send fails, media player intents carry the new state, MQTT and LOOKin controllers raise on failure, options can clear a sensor). Against the code before those fixes, 11 of the tests fail.
 - **README.md** — "Development" section: how to run the tests.
 
 ### CI
-- **tests.yml** — Runs the suite on Home Assistant 2026.5.0, 2026.10.0 and 2026.11.1.
+- **tests.yml** — New workflow that runs the suite on every push (versions: see Tests / CI above).
 - **lint.yml** — Ruff also checks `tests/`.
 
 ---

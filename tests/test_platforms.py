@@ -3,7 +3,7 @@ import logging
 
 import pytest
 
-from common import PRODUCTION_CLIMATE_CODES, all_codes, ha_version
+from common import PRODUCTION_CLIMATE_CODES, all_codes
 
 
 @pytest.mark.parametrize("platform", ["climate", "fan", "light", "media_player"])
@@ -45,13 +45,13 @@ async def test_climate_attributes(make_entity, code):
 
 
 async def test_climate_native_temperature_names_do_not_warn(hass, caplog):
-    """HA 2026.11 warns about classes that only provide the old temperature names."""
+    """HA warns about climate classes that still provide the pre-2026.11 names."""
     from homeassistant.components.climate import ClimateEntity
 
-    if not hasattr(ClimateEntity, "native_temperature_unit"):
-        pytest.skip("HA < 2026.11 has no native_* temperature properties")
-
     from custom_components.smartir.climate import SmartIRClimate
+
+    for old_name in ("temperature_unit", "current_temperature", "target_temperature"):
+        assert old_name not in vars(SmartIRClimate), old_name
 
     with caplog.at_level(logging.WARNING):
         # Class creation is where HA checks; SmartIRClimate itself was already imported.
@@ -70,12 +70,8 @@ async def test_climate_native_temperature_names_do_not_warn(hass, caplog):
 
 
 async def test_entities_rename_in_place():
-    """HA 2026.11 re-adds custom entities on entity_id changes unless they opt in."""
-    from homeassistant.helpers import entity as entity_helper
-
-    requires_readd = getattr(entity_helper, "_entity_class_requires_readd", None)
-    if requires_readd is None:
-        pytest.skip("HA < 2026.11 always re-adds entities on entity_id changes")
+    """HA re-adds custom entities on entity_id changes unless they opt in."""
+    from homeassistant.helpers.entity import _entity_class_requires_readd as requires_readd
 
     from custom_components.smartir import climate, fan, light, media_player
 
@@ -89,9 +85,7 @@ async def test_entities_rename_in_place():
 
 
 async def test_entity_id_changed_hook_runs(make_entity):
-    """The opt-in hook only calls super(); HA < 2026.11 never calls it."""
-    if ha_version() < (2026, 11):
-        pytest.skip("HA < 2026.11 has no async_entity_id_changed")
+    """The opt-in hook only calls super()."""
     for platform, code in (("climate", 1080), ("fan", 1000), ("light", 1020), ("media_player", 1440)):
         make_entity(platform, code).async_entity_id_changed(f"{platform}.old")
 

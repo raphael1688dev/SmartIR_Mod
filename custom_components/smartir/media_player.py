@@ -219,10 +219,10 @@ class SmartIRMediaPlayer(SmartIRIntentMixin, MediaPlayerEntity, RestoreEntity):
 
     @callback
     def async_entity_id_changed(self, old_entity_id: str) -> None:
-        # HA 2026.11+ renames entities in place when this hook is defined on the
-        # class itself; without it HA removes and re-adds them (until 2027.11).
+        # HA renames entities in place only when this hook is defined on the class
+        # itself; without it HA removes and re-adds them (until HA 2027.11).
         # Nothing here is keyed on our own entity_id: listeners track the sensor
-        # entities and MQTT uses intent_id. Never called before HA 2026.11.
+        # entities and MQTT uses intent_id.
         super().async_entity_id_changed(old_entity_id)
 
     @property
