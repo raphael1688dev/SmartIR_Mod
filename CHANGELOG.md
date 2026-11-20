@@ -6,6 +6,16 @@ Versions use `YYYYMMDDrN` format set in `manifest.json`.
 
 ---
 
+## Unreleased
+
+### Tests / CI
+- **tests.yml** — Latest Home Assistant in the CI matrix: 2026.11.1 → 2026.11.2 (2026.11.0 stays as the minimum).
+
+### Verified
+- 30 tests pass on Home Assistant 2026.11.2. The 2026.11.1 → 2026.11.2 changes in code this integration uses (MQTT unsubscribe across an MQTT entry reload, MQTT discovery unique-id handling, a config validation log message) need no changes here.
+
+---
+
 ## 20261113r0 — Minimum Home Assistant 2026.11 (2026-11-13)
 
 **Breaking:** requires Home Assistant **2026.11.0** or newer. `20261110r0` is the last release for 2026.5–2026.10; the Marketplace / HACS will not offer this one on older versions (`hacs.json` and `manifest.json` declare the new minimum).
