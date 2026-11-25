@@ -13,7 +13,7 @@ jobs:
       fail-fast: false
       matrix:
         # Oldest supported (manifest minimum) and latest stable.
-        homeassistant: ["2026.11.0", "2026.11.2"]
+        homeassistant: ["2026.11.0", "2026.11.3"]
     name: HA ${{ matrix.homeassistant }}
     steps:
       - uses: actions/checkout@v7

@@ -9,10 +9,11 @@ Versions use `YYYYMMDDrN` format set in `manifest.json`.
 ## Unreleased
 
 ### Tests / CI
-- **tests.yml** — Latest Home Assistant in the CI matrix: 2026.11.1 → 2026.11.2 (2026.11.0 stays as the minimum).
+- **tests.yml** — Latest Home Assistant in the CI matrix: 2026.11.1 → 2026.11.2 → 2026.11.3 (2026.11.0 stays as the minimum).
 
 ### Verified
 - 30 tests pass on Home Assistant 2026.11.2. The 2026.11.1 → 2026.11.2 changes in code this integration uses (MQTT unsubscribe across an MQTT entry reload, MQTT discovery unique-id handling, a config validation log message) need no changes here.
+- 30 tests pass on Home Assistant 2026.11.3. Its changes near this integration (Marketplace restoring state after a failed install and keeping file permissions on compressed files, MQTT climate's initial HVAC mode) need no changes here.
 
 ---
 
