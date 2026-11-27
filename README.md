@@ -25,7 +25,7 @@ See [CHANGELOG.md](CHANGELOG.md) for every change by version.
 
 ## Requirements
 
-- Home Assistant **2026.11.0+** (checked against 2026.11.0 through 2026.11.3). The last release that runs on 2026.5–2026.10 is `20261110r0`.
+- Home Assistant **2026.11.0+** (checked against 2026.11.0 through 2026.11.3, and 2026.12.0b2). The last release that runs on 2026.5–2026.10 is `20261110r0`.
 - The Marketplace built into Home Assistant (recommended for installation/updates)
 - For the MQTT controller: HA MQTT integration set up and connected to your broker (e.g., Mosquitto)
 - For multi-HA intent sync: MQTT integration on each HA instance, sharing the same broker
@@ -167,11 +167,11 @@ New device JSONs go under `codes/<platform>/<device_code>.json` in this fork. Th
 
 ## Development
 
-Tests live in `tests/` and run against a real Home Assistant package, so the same suite covers every supported HA version (CI runs the minimum, 2026.11.0, and the latest, 2026.11.3):
+Tests live in `tests/` and run against a real Home Assistant package, so the same suite covers every supported HA version (CI runs the minimum, 2026.11.0, and the newest, currently the 2026.12.0b2 beta):
 
 ```bash
 python3.14 -m venv .venv
-.venv/bin/pip install homeassistant==2026.11.3 -r tests/requirements.txt
+.venv/bin/pip install homeassistant==2026.12.0b2 -r tests/requirements.txt
 .venv/bin/python -m pytest
 ```
 

@@ -9,11 +9,12 @@ Versions use `YYYYMMDDrN` format set in `manifest.json`.
 ## Unreleased
 
 ### Tests / CI
-- **tests.yml** — Latest Home Assistant in the CI matrix: 2026.11.1 → 2026.11.2 → 2026.11.3 (2026.11.0 stays as the minimum).
+- **tests.yml** — Latest Home Assistant in the CI matrix: 2026.11.1 → 2026.11.2 → 2026.11.3 → 2026.12.0b2 (2026.11.0 stays as the minimum). The beta is replaced by 2026.12.0 once it is released.
 
 ### Verified
 - 30 tests pass on Home Assistant 2026.11.2. The 2026.11.1 → 2026.11.2 changes in code this integration uses (MQTT unsubscribe across an MQTT entry reload, MQTT discovery unique-id handling, a config validation log message) need no changes here.
 - 30 tests pass on Home Assistant 2026.11.3. Its changes near this integration (Marketplace restoring state after a failed install and keeping file permissions on compressed files, MQTT climate's initial HVAC mode) need no changes here.
+- 30 tests pass on Home Assistant 2026.12.0b2, also with Python deprecation warnings turned into errors. A full review of 2026.12.0b0 against the Home Assistant modules this integration uses found no needed changes; it removed `MediaPlayerState.STANDBY`, moved the climate `temperature_unit` to capability attributes and dropped the light `min/max_color_temp_kelvin` fallback for `None`, none of which this integration relies on. From b0 to b2, MQTT publishing raises an error while the MQTT client is not set up, which the MQTT controller already passes on as a failed send.
 
 ---
 

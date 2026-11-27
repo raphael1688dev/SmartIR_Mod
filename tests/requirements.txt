@@ -1,5 +1,5 @@
 # Test dependencies. Install Home Assistant itself separately, at the version
-# under test, e.g.: pip install homeassistant==2026.11.3 -r tests/requirements.txt
+# under test, e.g.: pip install homeassistant==2026.12.0b2 -r tests/requirements.txt
 aiofiles>=24.1.0
 paho-mqtt==2.1.0
 pytest==9.2.0
